@@ -253,7 +253,7 @@ def run_network_trajectory(N, G, beta, sigma, gamma, T_total, intervals, p, init
 
 
 	#### Fill array with analytical solution
-	lambda1, lambda2, time, E_solution, I_solution, sol_total_approx, I_max_2 = run_deterministic(N, beta, sigma, gamma, T_total, '../Text_files/Deterministic/')
+	lambda1, lambda2, time, E_solution, I_solution, sol_total_approx, I_max_2 = run_deterministic(N, beta, sigma, gamma, T_total, '../../../../Dropbox/Research/Epidemiology_2020/Text_files/Deterministic/')
 
 	np.savetxt(folder+'/Xseries_R0%.1f_sigma%.2f_N%d_p%.1f.txt'%(beta/gamma, sigma, N, p), (model.Xseries), fmt = '%d')
 
