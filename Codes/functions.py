@@ -205,6 +205,7 @@ def plot_cum_prob_ind(I_max, sample_sizes, R0, N, func_time, func_infec, colors,
 	return fig, ax
 
 def node_degrees(Amat):
+	
         return Amat.sum(axis=0).reshape(N,1)
 
 def run_deterministic(N, beta, sigma, gamma, T_total, folder):
