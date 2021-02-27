@@ -129,6 +129,7 @@ def plot_cum_prob_time(T_total, sample_sizes, R0, sigma, p, N, func_time, func_i
 		func_prob = prob_detection_acum2(N,func_infec.astype(int), m)
 		func_prob2 = prob_detection_acum2(N,func_infec2.astype(int), m)
 
+		print(len(func_prob2), len(func_time))
 		f = interp1d(func_time, np.cumsum(func_prob), 'cubic')
 		f2 = interp1d(func_time, np.cumsum(func_prob2), 'cubic')
 		

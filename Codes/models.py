@@ -228,7 +228,9 @@ class SEIRSModel():
 
             if(self.t < self.tmax):
                 self.run_epoch(runtime=self.tmax-self.t, dt=dt)
-
+                
+        folder = '../../../../Dropbox/Research/Epidemiology_2020/Text_files/Deterministic/'
+        numpy.savetxt(folder+'/deterministic_R0%.1f_sigma%.1f_N%d.txt'%(self.beta/self.gamma, self.sigma, 2000), (self.tseries, self.numE, self.numI), fmt = '%.3f')
         return True
 
     #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
