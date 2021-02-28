@@ -125,11 +125,10 @@ def plot_cum_prob_time(T_total, sample_sizes, R0, sigma, p, N, func_time, func_i
 	time_x = np.linspace(0,T_total,200)
 	## Run over the different sample sizes
 	for m , c in zip(sample_sizes, colors):
-		
+
 		func_prob = prob_detection_acum2(N,func_infec.astype(int), m)
 		func_prob2 = prob_detection_acum2(N,func_infec2.astype(int), m)
 
-		print(len(func_prob2), len(func_time))
 		f = interp1d(func_time, np.cumsum(func_prob), 'cubic')
 		f2 = interp1d(func_time, np.cumsum(func_prob2), 'cubic')
 		
@@ -137,7 +136,7 @@ def plot_cum_prob_time(T_total, sample_sizes, R0, sigma, p, N, func_time, func_i
 
 		#ax.plot(func_time, np.cumsum(func_prob), '.', c = c, ms = 10, label = 'm = %d'%m)
 		ax.plot(time_x, f(time_x),'-', c = c, linewidth = 4, label = 'm = %d'%m)
-		ax.plot(time_x, f2(time_x),'-', c = 'k', linewidth = 4, label = 'm = %d'%m)
+		ax.plot(time_x, f2(time_x),'-', c = c, linewidth = 4, alpha = 0.5)
 		ax.vlines(time_x[np.where(f(time_x)<=0.91)][-1], 0,0.9, linestyle = 'dashed', color = c, alpha = 0.5, label = '$t_{%d} = %.1f $days'%(m, time_x[np.where(f(time_x)<=0.91)][-1]), linewidth = 3)
 
 	ax.hlines(1,0,func_time[-1], linestyle = 'dashed', linewidth = 3)
@@ -148,7 +147,7 @@ def plot_cum_prob_time(T_total, sample_sizes, R0, sigma, p, N, func_time, func_i
 	if(log_scale):
 		ax.set_yscale('log')
 	ax.tick_params(labelsize = 30)
-	ax.legend(fontsize=26, loc=0)
+	ax.legend(fontsize=20, loc=0)
 	ax.set_xlim(0,T_total)
 	ax.set_ylim(0,1.1)
 	ax.set_xticks(func_time[::int(T_total/10)])
