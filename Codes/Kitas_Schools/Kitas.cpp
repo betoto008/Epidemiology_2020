@@ -17,13 +17,19 @@ int main(int argc, char* argv[]){
     clock_t t1,t2;
     t1=clock();
     
-    int N = 200;
-    int T = 5*7;
-    int n_inc = 4;
     std::string Text_files_path = "../../../../../Dropbox/Research/Epidemiology_2020/Text_files/Kitas_Schools/";
     
-    //Vector with the kids of a kita: 0=healthy, 1=incubation, 2 = infected, 3 = detected.
+    // Parameters
+    int N = 200; //Number of kids
+    int T = 8*7; //Total number of days for the simulation
+    int t_inc = 4; //Incubation period in days
+    int t_inf = 6; //Infectious period in days
+    double beta = .5; //Infection rate days^-1
+    double p_det = 0.8; //Probability of detection.
+    double p_in_inf = 0.1; //Probability of influx of a new infection to the kita. Should be proportional to the prevalence in the city.
     
+    
+    //Vector with the kids of a kita: 0 = Healthy, 1 = Incubation, 2 = Infected, 3 = Recovered, 4 = Detected.
     std::vector < int > kids;
     kids.resize(N);
     for(int n = 0 ; n<N ; n++){
@@ -31,12 +37,14 @@ int main(int argc, char* argv[]){
     }
     //--------------------------------
     
-    //Vector with the counter of a incubations days.
-    
+    //Vectors with the counter of a incubations days and infectious days.
     std::vector < int > incubation;
     incubation.resize(N);
+    std::vector < int > infectious;
+    infectious.resize(N);
     for(int n = 0 ; n<N ; n++){
-        incubation[n] = n_inc;
+        incubation[n] = t_inc;
+        infectious[n] = t_inf;
     }
     //--------------------------------
     
@@ -47,7 +55,7 @@ int main(int argc, char* argv[]){
     
     for(int d = 0 ; d<7 ; d++){
         days[d] = days_array[d];
-        std::cout << days[d] << "\t";
+        std::cout << d << ":" << days[d] << "\t";
     }
     std::cout << std::endl;
     
@@ -63,47 +71,57 @@ int main(int argc, char* argv[]){
         std::cin >> m;
         testing_days.push_back(m);
     }
-    
     //--------------------------------
     
+    // initial number of kids in each compartment
     int H = N;
     int Inc = 0;
     int Inf = 0;
+    int Rec = 0;
     int Det = 0;
     
-    double beta;
+    double inf;
     double r1;
     std::vector<int>::iterator a;
     kids[10] = 1;
     
     //Output file
-    std::ofstream fout (Text_files_path+"output_"+std::to_string(n_testing_days)+".txt");
+    std::ofstream fout (Text_files_path+"output_"+std::to_string(n_testing_days)+"-testing_days.txt");
     
     // for-loop running over T days
     for(int t = 0; t<=T ; t++){
         int d = t%7;
-        update_state_kids(N, &H, &Inc, &Inf, &Det, &kids);
-        fout << H << " " << Inc << " " << Inf << " " << Det << std::endl;
-        beta = Inf/double(N);
+        update_state_kids(N, &H, &Inc, &Inf, &Rec, &Det, &kids);
+        fout << H << " " << Inc << " " << Inf << " " << Rec << " " << Det << std::endl;
+        inf = Inf/double(N);
         std::string day = days[d];
+        
         // for-loop running over N kids
         for(int n = 0; n<N ; n++){
-            if(kids[n]==0){
+            if(kids[n]==0){ //Kid is healthy
                 r1 = randX(0,1);
-                if(r1<beta){
+                if(r1<(inf*beta)){
                     kids[n] = 1;
                 }
-            }else if(kids[n]==1){
-                if (incubation[n]==0) {
+            }else if(kids[n]==1){ //Kid is in incubation period
+                if (incubation[n]==0) { //Incubation period is over?
                     kids[n]=2;
-                    }else{
+                }else{
                     incubation[n]--;
                 }
-            }else if(kids[n]==2){
-                a = std::find(testing_days.begin(), testing_days.end(), d);
-                if(a != testing_days.end()){
+            }else if(kids[n]==2){ //Kid is in infectious period
+                if (infectious[n]==0) { //Infectious period is over?
                     kids[n]=3;
+                } else {
+                    infectious[n]--;
+                    a = std::find(testing_days.begin(), testing_days.end(), d);
+                    if (a != testing_days.end()) { //Is it a testing day?
+                        kids[n]=4;
+                    } else {
+                        
+                    }
                 }
+
             }
             else{
                 
