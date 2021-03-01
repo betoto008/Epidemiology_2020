@@ -26,10 +26,10 @@ int main(int argc, char* argv[]){
     int t_inf = 6; //Infectious period in days
     double beta = .5; //Infection rate days^-1
     double p_det = 0.8; //Probability of detection.
-    double p_in_inf = 0.1; //Probability of influx of a new infection to the kita. Should be proportional to the prevalence in the city.
+    double p_in_inf = 0.05; //Probability of influx of a new infection to the kita. Should be proportional to the prevalence in the city.
     
     
-    //Vector with the kids of a kita: 0 = Healthy, 1 = Incubation, 2 = Infected, 3 = Recovered, 4 = Detected.
+    //Vector with the kids of a kita: 0 = Healthy, 1 = Incubation, 2 = Infectious, 3 = Recovered, 4 = Detected.
     std::vector < int > kids;
     kids.resize(N);
     for(int n = 0 ; n<N ; n++){
@@ -83,7 +83,7 @@ int main(int argc, char* argv[]){
     double inf;
     double r1;
     std::vector<int>::iterator a;
-    kids[10] = 1;
+    //kids[10] = 1;
     
     //Output file
     std::ofstream fout (Text_files_path+"output_"+std::to_string(n_testing_days)+"-testing_days.txt");
@@ -96,37 +96,65 @@ int main(int argc, char* argv[]){
         inf = Inf/double(N);
         std::string day = days[d];
         
-        // for-loop running over N kids
-        for(int n = 0; n<N ; n++){
-            if(kids[n]==0){ //Kid is healthy
-                r1 = randX(0,1);
-                if(r1<(inf*beta)){
-                    kids[n] = 1;
-                }
-            }else if(kids[n]==1){ //Kid is in incubation period
-                if (incubation[n]==0) { //Incubation period is over?
-                    kids[n]=2;
-                }else{
-                    incubation[n]--;
-                }
-            }else if(kids[n]==2){ //Kid is in infectious period
-                if (infectious[n]==0) { //Infectious period is over?
-                    kids[n]=3;
-                } else {
-                    infectious[n]--;
-                    a = std::find(testing_days.begin(), testing_days.end(), d);
-                    if (a != testing_days.end()) { //Is it a testing day?
-                        kids[n]=4;
+        if (d<5) { //Week days
+            // for-loop running over N kids
+            for(int n = 0; n<N ; n++){
+                if(kids[n]==0){ //Kid is healthy
+                    r1 = randX(0,1);
+                    if(r1<(inf*beta)){
+                        kids[n] = 1;
+                    }
+                }else if(kids[n]==1){ //Kid is in incubation period
+                    if (incubation[n]==0) { //Incubation period is over?
+                        kids[n]=2;
+                    }else{
+                        incubation[n]--;
+                    }
+                }else if(kids[n]==2){ //Kid is in infectious period
+                    if (infectious[n]==0) { //Infectious period is over?
+                        kids[n]=3;
                     } else {
-                        
+                        infectious[n]--;
+                        a = std::find(testing_days.begin(), testing_days.end(), d);
+                        if (a != testing_days.end()) { //Is it a testing day?
+                            kids[n]=4;
+                        } else {
+                            
+                        }
+                    }
+
+                }
+                else{
+                    
+                }
+            }
+        } else { //Weekends
+            // for-loop running over N kids
+            for(int n = 0; n<N ; n++){
+                if(kids[n]==0){ //Kid is healthy
+                    r1 = randX(0,1);
+                    if(r1<(p_in_inf)){
+                        kids[n] = 1;
+                    }
+                }else if(kids[n]==1){ //Kid is in incubation period
+                    if (incubation[n]==0) { //Incubation period is over?
+                        kids[n]=2;
+                    }else{
+                        incubation[n]--;
+                    }
+                }else if(kids[n]==2){ //Kid is in infectious period
+                    if (infectious[n]==0) { //Infectious period is over?
+                        kids[n]=3;
+                    } else {
+                        infectious[n]--;
                     }
                 }
-
-            }
-            else{
-                
+                else{
+                    
+                }
             }
         }
+      
     }
     fout.close();
     //------------------------------------------------------------------------------
