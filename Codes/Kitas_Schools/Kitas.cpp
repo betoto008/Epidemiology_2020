@@ -20,13 +20,13 @@ int main(int argc, char* argv[]){
     std::string Text_files_path = "../../../../../Dropbox/Research/Epidemiology_2020/Text_files/Kitas_Schools/";
     
     // Parameters
-    int N = 200; //Number of kids
+    int N = 100; //Number of kids
     int T = 8*7; //Total number of days for the simulation
     int t_inc = 4; //Incubation period in days
     int t_inf = 6; //Infectious period in days
     double beta = .5; //Infection rate days^-1
     double p_det = 0.8; //Probability of detection.
-    double p_in_inf = 0.05; //Probability of influx of a new infection to the kita. Should be proportional to the prevalence in the city.
+    double p_in_inf = 0.01; //Probability of influx of a new infection to the kita. Should be proportional to the prevalence in the city.
     
     
     //Vector with the kids of a kita: 0 = Healthy, 1 = Incubation, 2 = Infectious, 3 = Recovered, 4 = Detected.
