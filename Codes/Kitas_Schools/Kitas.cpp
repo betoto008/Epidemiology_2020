@@ -13,6 +13,11 @@
 
 int main(int argc, char* argv[]){
     
+    // argv-> 1:how many days ; 2:which days ; 3:t_inc ; 4:beta ; 5:p_in_inf
+    std::string beta_s (argv[4]);
+    std::string p_in_inf_s (argv[5]);
+    
+    
     std::cout<<">Running simulation of Kitas ..."<< std::endl;
     clock_t t1,t2;
     t1=clock();
@@ -21,12 +26,12 @@ int main(int argc, char* argv[]){
     
     // Parameters
     int N = 100; //Number of kids
-    int T = 8*7; //Total number of days for the simulation
-    int t_inc = 4; //Incubation period in days
+    int T = 4*7; //Total number of days for the simulation
+    int t_inc = argv[3][0]-'0'; //Incubation period in days
     int t_inf = 6; //Infectious period in days
-    double beta = .5; //Infection rate days^-1
+    double beta = std::stod(beta_s); //Infection rate days^-1
     double p_det = 0.8; //Probability of detection.
-    double p_in_inf = 0.01; //Probability of influx of a new infection to the kita. Should be proportional to the prevalence in the city.
+    double p_in_inf = std::stod(p_in_inf_s); //Probability of influx of a new infection to the kita. Should be proportional to the prevalence in the city.
     
     
     //Vector with the kids of a kita: 0 = Healthy, 1 = Incubation, 2 = Infectious, 3 = Recovered, 4 = Detected.
@@ -55,22 +60,32 @@ int main(int argc, char* argv[]){
     
     for(int d = 0 ; d<7 ; d++){
         days[d] = days_array[d];
-        std::cout << d << ":" << days[d] << "\t";
+        //std::cout << d << ":" << days[d] << "\t";
     }
     std::cout << std::endl;
     
     std::vector<int> testing_days;
-    int n_testing_days;
-    
-    std::cout << "How many days do you want to test per week? 1, 2, or 3?" << std::endl;
-    std::cin >> n_testing_days;
-    
-    for (int d = 1; d<=n_testing_days; d++){
-        int m;
-        std::cout << "What is the day " << d<<"?"<< std::endl;
-        std::cin >> m;
-        testing_days.push_back(m);
+    int n_testing_days = argv[1][0] - '0';
+    std::cout << "We are testing " << n_testing_days << " days: ";
+    //std::cout << "How many days do you want to test per week? 1, 2, or 3?" << std::endl;
+    //std::cin >> n_testing_days;
+    if (n_testing_days!=0) {
+        for (int d = 0; d<n_testing_days; d++){
+            int m = argv[2][d] - '0';
+            testing_days.push_back(m);
+            std::cout << m << "(" << days[m] << ")" << ", ";
+        }
     }
+    std::cout << std::endl;
+    
+    std::cout << "beta is " << beta << " ,p_in is " << p_in_inf << " and t_inc is " << t_inc << std::endl << std::endl;
+    
+    //for (int d = 1; d<=n_testing_days; d++){
+    //    int m;
+    //    std::cout << "What is the day " << d<<"?"<< std::endl;
+    //    std::cin >> m;
+    //    testing_days.push_back(m);
+    //}
     //--------------------------------
     
     // initial number of kids in each compartment
@@ -86,7 +101,7 @@ int main(int argc, char* argv[]){
     //kids[10] = 1;
     
     //Output file
-    std::ofstream fout (Text_files_path+"output_"+std::to_string(n_testing_days)+"-testing_days.txt");
+    std::ofstream fout (Text_files_path+"output_testing_days-"+std::to_string(n_testing_days)+"-"+argv[2]+"_beta-"+std::to_string(beta)+"_pin-"+std::to_string(p_in_inf)+"_tau-"+std::to_string(t_inc)+".txt");
     
     // for-loop running over T days
     for(int t = 0; t<=T ; t++){
