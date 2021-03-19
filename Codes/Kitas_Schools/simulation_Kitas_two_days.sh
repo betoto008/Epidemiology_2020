@@ -7,8 +7,8 @@
 #  
 n_testing_days=(2)
 testing_days=(02 13 24)
-betas=(0.16 0.18 0.20 0.25 0.33)
-p_in_s=(0.1 0.05 0.01 0.005)
+betas=(0.18)
+p_in_s=(0.0011)
 taus=(1 2 3)
 for beta in "${betas[@]}"
     do
