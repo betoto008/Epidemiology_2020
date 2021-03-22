@@ -9,11 +9,16 @@
 
 #include "./lib/random.cpp"
 
-//using namespace std;
+
+using namespace std;
 
 int main(int argc, char* argv[]){
     
-    // argv-> 1:how many days ; 2:which days ; 3:t_inc ; 4:beta ; 5:p_in_inf
+    gsl_rng * r = gsl_rng_alloc (gsl_rng_taus);
+    
+    gsl_rng_set(r, time(NULL));
+    
+    // argv-> 1:how many days ; 2:which days ; 3:tau ; 4:beta ; 5:p_in_inf
     std::string beta_s (argv[4]);
     std::string p_in_inf_s (argv[5]);
     
@@ -25,12 +30,13 @@ int main(int argc, char* argv[]){
     std::string Text_files_path = "../../../../../Dropbox/Research/Epidemiology_2020/Text_files/Kitas_Schools/";
     
     // Parameters
-    int N = 100; //Number of kids
-    int T = 4*7; //Total number of days for the simulation
-    int t_inc = argv[3][0]-'0'; //Incubation period in days
+    int N = 200; //Number of kids
+    int T = 12*7; //Total number of days for the simulation
+    int t_inc = 5; //Incubation period in days
     int t_inf = 6; //Infectious period in days
+    int tau = argv[3][0]-'0';
     double beta = std::stod(beta_s); //Infection rate days^-1
-    double p_det = 0.8; //Probability of detection.
+    double p_det = 0.9; //Probability of detection.
     double p_in_inf = std::stod(p_in_inf_s); //Probability of influx of a new infection to the kita. Should be proportional to the prevalence in the city.
     
     
@@ -42,15 +48,35 @@ int main(int argc, char* argv[]){
     }
     //--------------------------------
     
-    //Vectors with the counter of a incubations days and infectious days.
+    //Vectors with the counter of a incubations days, infectious days and actual infected days of each kid.
+    
+    //Distribution for times
+    std::default_random_engine generator;
+    double t_inc_n = 0;
+    double t_inf_n = 0;
+    
     std::vector < int > incubation;
     incubation.resize(N);
     std::vector < int > infectious;
     infectious.resize(N);
+    std::vector < int > infected_days;
+    infected_days.resize(N);
     for(int n = 0 ; n<N ; n++){
-        incubation[n] = t_inc;
-        infectious[n] = t_inf;
+        while( t_inc_n < 3.0){
+            t_inc_n =  gsl_ran_exponential (r, t_inc);
+        }
+        while( t_inf_n < 3.0){
+            t_inf_n =  gsl_ran_exponential (r, t_inf);
+        }
+        incubation[n] = t_inc_n;
+        cout << incubation[n] << "\t";
+        infectious[n] = t_inf_n;
+        infected_days[n] = 0;
+        
+        t_inc_n = 0;
+        t_inf_n = 0;
     }
+    cout << endl;
     //--------------------------------
     
     //days of the week
@@ -78,15 +104,7 @@ int main(int argc, char* argv[]){
     }
     std::cout << std::endl;
     
-    std::cout << "beta is " << beta << " ,p_in is " << p_in_inf << " and t_inc is " << t_inc << std::endl << std::endl;
-    
-    //for (int d = 1; d<=n_testing_days; d++){
-    //    int m;
-    //    std::cout << "What is the day " << d<<"?"<< std::endl;
-    //    std::cin >> m;
-    //    testing_days.push_back(m);
-    //}
-    //--------------------------------
+    std::cout << "beta is " << beta << " ,p_in is " << p_in_inf << " and tau is " << tau << std::endl << std::endl;
     
     // initial number of kids in each compartment
     int H = N;
@@ -96,76 +114,83 @@ int main(int argc, char* argv[]){
     int Det = 0;
     
     double inf;
-    double r1;
+    double r_inf;
+    double r_det;
+    
     std::vector<int>::iterator a;
     //kids[10] = 1;
     
     //Output file
-    std::ofstream fout (Text_files_path+"output_testing_days-"+std::to_string(n_testing_days)+"-"+argv[2]+"_beta-"+std::to_string(beta)+"_pin-"+std::to_string(p_in_inf)+"_tau-"+std::to_string(t_inc)+".txt");
-    
+    std::ofstream fout (Text_files_path+"output_testing_days-"+std::to_string(n_testing_days)+"-"+argv[2]+"_beta-"+std::to_string(beta)+"_pin-"+std::to_string(p_in_inf)+"_tau-"+std::to_string(tau)+".txt");
+
     // for-loop running over T days
     for(int t = 0; t<=T ; t++){
         int d = t%7;
         update_state_kids(N, &H, &Inc, &Inf, &Rec, &Det, &kids);
         fout << H << " " << Inc << " " << Inf << " " << Rec << " " << Det << std::endl;
         inf = Inf/double(N);
-        std::string day = days[d];
+        //std::string day = days[d];
         
         if (d<5) { //Week days
+            a = std::find(testing_days.begin(), testing_days.end(), d);
             // for-loop running over N kids
             for(int n = 0; n<N ; n++){
                 if(kids[n]==0){ //Kid is healthy
-                    r1 = randX(0,1);
-                    if(r1<(inf*beta)){
+                    r_inf = randX(0,1);
+                    if(r_inf<(inf*beta)){
                         kids[n] = 1;
                     }
-                }else if(kids[n]==1){ //Kid is in incubation period
-                    if (incubation[n]==0) { //Incubation period is over?
-                        kids[n]=2;
-                    }else{
-                        incubation[n]--;
+                } else{ //Kid isn't healthy
+                    
+                    if((a != testing_days.end())){ // Testing day?
+                        if(kids[n] < 3){ // Kid isn't yet recovered or tested
+                            if(infected_days[n] > (incubation[n]-tau)){ //Kid is detectable
+                                r_det = randX(0,1);
+                                if(r_det < p_det){ //Kid is detected
+                                    kids[n] = 4;
+                                }
+                            }
+                        }
+                        
                     }
-                }else if(kids[n]==2){ //Kid is in infectious period
-                    if (infectious[n]==0) { //Infectious period is over?
-                        kids[n]=3;
-                    } else {
-                        infectious[n]--;
-                        a = std::find(testing_days.begin(), testing_days.end(), d);
-                        if (a != testing_days.end()) { //Is it a testing day?
-                            kids[n]=4;
-                        } else {
-                            
+                    
+                    if(kids[n]==1){ //Kid is incubation period
+                        if (infected_days[n]>incubation[n]) { //Incubation period is over?
+                            kids[n]=2;
+                        }
+                        infected_days[n] = infected_days[n]+1;
+                    } else if(kids[n]==2){ //Kid is infectious period
+                        if (infected_days[n]<(incubation[n]+infectious[n])) { //Incubation period isn't over?
+                            infected_days[n] = infected_days[n]+1;
+                        }else{
+                            kids[n]=3;
                         }
                     }
-
                 }
-                else{
-                    
-                }
+                
             }
-        } else { //Weekends
+        }else { //Weekends
             // for-loop running over N kids
             for(int n = 0; n<N ; n++){
                 if(kids[n]==0){ //Kid is healthy
-                    r1 = randX(0,1);
-                    if(r1<(p_in_inf)){
+                    r_inf = randX(0,1);
+                    if(r_inf<(p_in_inf)){
                         kids[n] = 1;
                     }
-                }else if(kids[n]==1){ //Kid is in incubation period
-                    if (incubation[n]==0) { //Incubation period is over?
-                        kids[n]=2;
-                    }else{
-                        incubation[n]--;
-                    }
-                }else if(kids[n]==2){ //Kid is in infectious period
-                    if (infectious[n]==0) { //Infectious period is over?
-                        kids[n]=3;
-                    } else {
-                        infectious[n]--;
-                    }
-                }
-                else{
+                } else{ //Kid isn't healthy
                     
+                    if(kids[n]==1){ //Kid is incubation period
+                        if (infected_days[n]>incubation[n]) { //Incubation period is over?
+                            kids[n]=2;
+                        }
+                        infected_days[n] = infected_days[n]+1;
+                    } else if(kids[n]==2){ //Kid is in infectious period
+                        if (infected_days[n]<(incubation[n]+infectious[n])) { //Incubation period isn't over?
+                            infected_days[n] = infected_days[n]+1;
+                        }else{
+                            kids[n]=3;
+                        }
+                    }
                 }
             }
         }
