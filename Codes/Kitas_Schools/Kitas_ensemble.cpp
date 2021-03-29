@@ -27,7 +27,7 @@ int main(int argc, char* argv[]){
     std::string Text_files_path = "../../../../../Dropbox/Research/Epidemiology_2020/Text_files/Kitas_Schools/Statistics/";
     
     // Parameters
-    int n_ensemble = 2000; //Ensemble size
+    int n_ensemble = 10000; //Ensemble size
     int N = 20; //Number of kids
     int T = 4*7; //Total number of days for the simulation
     int tau = argv[3][0]-'0';
@@ -89,6 +89,7 @@ int main(int argc, char* argv[]){
     int Det = 0;
     
     int total_inf = 0;
+    int total_det = 0;
     
     double inf;
     double r_inf;
@@ -98,6 +99,10 @@ int main(int argc, char* argv[]){
     
     //Output file
     std::ofstream fout (Text_files_path+"statistics_days-"+std::to_string(n_testing_days)+"-"+argv[2]+"_beta-"+std::to_string(beta)+"_pin-"+std::to_string(p_in_inf)+"_tau-"+std::to_string(tau)+".txt");
+    
+    std::ofstream fout_inc (Text_files_path+"tau_inc_days-"+std::to_string(n_testing_days)+"-"+argv[2]+"_beta-"+std::to_string(beta)+"_pin-"+std::to_string(p_in_inf)+"_tau-"+std::to_string(tau)+".txt");
+    
+    std::ofstream fout_inf (Text_files_path+"tau_inf_days-"+std::to_string(n_testing_days)+"-"+argv[2]+"_beta-"+std::to_string(beta)+"_pin-"+std::to_string(p_in_inf)+"_tau-"+std::to_string(tau)+".txt");
     
     for(int j = 0 ; j < n_ensemble ; j++){
         
@@ -124,7 +129,9 @@ int main(int argc, char* argv[]){
                 t_inf_n =  gsl_ran_exponential (r, t_inf);
             }
             incubation[n] = t_inc_n;
+            fout_inc << t_inc_n << endl;
             infectious[n] = t_inf_n;
+            fout_inf << t_inf_n << endl;
             infected_days[n] = 0;
             
             t_inc_n = 0;
@@ -138,6 +145,7 @@ int main(int argc, char* argv[]){
         Rec = 0;
         Det = 0;
         total_inf = 0;
+        total_det = 0;
         //--------------------------------------------
         
         // for-loop running over T days
@@ -159,18 +167,6 @@ int main(int argc, char* argv[]){
                         }
                     } else{ //Kid isn't healthy
                         
-                        if((a != testing_days.end())){ // Testing day?
-                            if(kids[n] < 3){ // Kid isn't yet recovered or tested
-                                if(infected_days[n] > (incubation[n]-tau)){ //Kid is detectable
-                                    r_det = randX(0,1);
-                                    if(r_det < p_det){ //Kid is detected
-                                        kids[n] = 4;
-                                    }
-                                }
-                            }
-                            
-                        }
-                        
                         if(kids[n]==1){ //Kid is incubation period
                             if (infected_days[n]>incubation[n]) { //Incubation period is over?
                                 kids[n]=2;
@@ -183,8 +179,20 @@ int main(int argc, char* argv[]){
                                 kids[n]=3;
                             }
                         }
+                        
+                        if((a != testing_days.end())){ // Testing day?
+                            if(kids[n] < 3){ // Kid isn't yet recovered or tested
+                                if(infected_days[n] > (incubation[n]-tau)){ //Kid is detectable
+                                    r_det = randX(0,1);
+                                    if(r_det < p_det){ //Kid is detected
+                                        kids[n] = 4;
+                                        total_det ++;
+                                    }
+                                }
+                            }
+                            
+                        }
                     }
-                    
                 }
             }else { //Weekends
                 // for-loop running over N kids
@@ -215,9 +223,11 @@ int main(int argc, char* argv[]){
           
         }
         
-        fout << total_inf << std::endl;
+        fout << total_inf << "\t" << total_det << std::endl;
     }
     fout.close();
+    fout_inc.close();
+    fout_inf.close();
     //------------------------------------------------------------------------------
     std::cout<< ">Simulation completed…"<< std::endl;
     t2= clock();
