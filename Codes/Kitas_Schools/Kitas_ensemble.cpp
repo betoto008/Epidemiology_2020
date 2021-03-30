@@ -120,6 +120,8 @@ int main(int argc, char* argv[]){
         infectious.resize(N);
         std::vector < int > infected_days;
         infected_days.resize(N);
+        
+        // Try filling the arrays with constant values and exponentially distributed random values
         for(int n = 0 ; n<N ; n++){
             kids[n] = 0;
             while( t_inc_n < 3.0){
