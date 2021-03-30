@@ -98,7 +98,7 @@ int main(int argc, char* argv[]){
     //kids[10] = 1;
     
     //Output file
-    std::ofstream fout (Text_files_path+"statistics_days-"+std::to_string(n_testing_days)+"-"+argv[2]+"_beta-"+std::to_string(beta)+"_pin-"+std::to_string(p_in_inf)+"_tau-"+std::to_string(tau)+".txt");
+    std::ofstream fout (Text_files_path+"statistics_days-"+std::to_string(n_testing_days)+"-"+argv[2]+"_beta-"+std::to_string(beta)+"_pin-"+std::to_string(p_in_inf)+"_tau-"+std::to_string(tau)+"_1.txt");
     
     std::ofstream fout_inc (Text_files_path+"tau_inc_days-"+std::to_string(n_testing_days)+"-"+argv[2]+"_beta-"+std::to_string(beta)+"_pin-"+std::to_string(p_in_inf)+"_tau-"+std::to_string(tau)+".txt");
     
@@ -124,10 +124,13 @@ int main(int argc, char* argv[]){
         // Try filling the arrays with constant values and exponentially distributed random values
         for(int n = 0 ; n<N ; n++){
             kids[n] = 0;
-            while( t_inc_n < 3.0){
+            //incubation[n] = t_inc;
+            //infectious[n] = t_inf;
+            
+            while( t_inc_n < 1.0){
                 t_inc_n =  gsl_ran_exponential (r, t_inc);
             }
-            while( t_inf_n < 3.0){
+            while( t_inf_n < 1.0){
                 t_inf_n =  gsl_ran_exponential (r, t_inf);
             }
             incubation[n] = t_inc_n;
@@ -138,6 +141,7 @@ int main(int argc, char* argv[]){
             
             t_inc_n = 0;
             t_inf_n = 0;
+            
         }
         //--------------------------------
         
@@ -228,8 +232,8 @@ int main(int argc, char* argv[]){
         fout << total_inf << "\t" << total_det << std::endl;
     }
     fout.close();
-    fout_inc.close();
-    fout_inf.close();
+    //fout_inc.close();
+    //fout_inf.close();
     //------------------------------------------------------------------------------
     std::cout<< ">Simulation completed…"<< std::endl;
     t2= clock();
