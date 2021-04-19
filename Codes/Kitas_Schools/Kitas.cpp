@@ -62,19 +62,26 @@ int main(int argc, char* argv[]){
     std::vector < int > infected_days;
     infected_days.resize(N);
     for(int n = 0 ; n<N ; n++){
-        while( t_inc_n < 3.0){
+        kids[n] = 0;
+        incubation[n] = t_inc;
+        infectious[n] = t_inf;
+        
+        /*
+        while( t_inc_n < 1.0){
             t_inc_n =  gsl_ran_exponential (r, t_inc);
         }
-        while( t_inf_n < 3.0){
+        while( t_inf_n < 1.0){
             t_inf_n =  gsl_ran_exponential (r, t_inf);
         }
         incubation[n] = t_inc_n;
-        cout << incubation[n] << "\t";
+        fout_inc << t_inc_n << endl;
         infectious[n] = t_inf_n;
+        fout_inf << t_inf_n << endl;
         infected_days[n] = 0;
         
         t_inc_n = 0;
         t_inf_n = 0;
+        */
     }
     cout << endl;
     //--------------------------------
@@ -144,11 +151,17 @@ int main(int argc, char* argv[]){
                     
                     if((a != testing_days.end())){ // Testing day?
                         if(kids[n] < 3){ // Kid isn't yet recovered or tested
+                            r_det = randX(0,1);
+                            if(r_det < (p_det*((1/(1+pow((log10(exp(3.0*infected_days[n]))/(2.5)),(-4))))))){ //Kid is detected
+                                kids[n] = 4;
+                            /*
                             if(infected_days[n] > (incubation[n]-tau)){ //Kid is detectable
                                 r_det = randX(0,1);
                                 if(r_det < p_det){ //Kid is detected
                                     kids[n] = 4;
+                             
                                 }
+                             */
                             }
                         }
                         

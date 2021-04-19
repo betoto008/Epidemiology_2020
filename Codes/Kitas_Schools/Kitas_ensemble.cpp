@@ -100,9 +100,9 @@ int main(int argc, char* argv[]){
     //Output file
     std::ofstream fout (Text_files_path+"statistics_days-"+std::to_string(n_testing_days)+"-"+argv[2]+"_beta-"+std::to_string(beta)+"_pin-"+std::to_string(p_in_inf)+"_tau-"+std::to_string(tau)+"_1.txt");
     
-    std::ofstream fout_inc (Text_files_path+"tau_inc_days-"+std::to_string(n_testing_days)+"-"+argv[2]+"_beta-"+std::to_string(beta)+"_pin-"+std::to_string(p_in_inf)+"_tau-"+std::to_string(tau)+".txt");
+    //std::ofstream fout_inc (Text_files_path+"tau_inc_days-"+std::to_string(n_testing_days)+"-"+argv[2]+"_beta-"+std::to_string(beta)+"_pin-"+std::to_string(p_in_inf)+"_tau-"+std::to_string(tau)+".txt");
     
-    std::ofstream fout_inf (Text_files_path+"tau_inf_days-"+std::to_string(n_testing_days)+"-"+argv[2]+"_beta-"+std::to_string(beta)+"_pin-"+std::to_string(p_in_inf)+"_tau-"+std::to_string(tau)+".txt");
+    //std::ofstream fout_inf (Text_files_path+"tau_inf_days-"+std::to_string(n_testing_days)+"-"+argv[2]+"_beta-"+std::to_string(beta)+"_pin-"+std::to_string(p_in_inf)+"_tau-"+std::to_string(tau)+".txt");
     
     for(int j = 0 ; j < n_ensemble ; j++){
         
@@ -124,9 +124,10 @@ int main(int argc, char* argv[]){
         // Try filling the arrays with constant values and exponentially distributed random values
         for(int n = 0 ; n<N ; n++){
             kids[n] = 0;
-            //incubation[n] = t_inc;
-            //infectious[n] = t_inf;
+            incubation[n] = t_inc;
+            infectious[n] = t_inf;
             
+            /*
             while( t_inc_n < 1.0){
                 t_inc_n =  gsl_ran_exponential (r, t_inc);
             }
@@ -141,7 +142,7 @@ int main(int argc, char* argv[]){
             
             t_inc_n = 0;
             t_inf_n = 0;
-            
+            */
         }
         //--------------------------------
         
@@ -188,15 +189,21 @@ int main(int argc, char* argv[]){
                         
                         if((a != testing_days.end())){ // Testing day?
                             if(kids[n] < 3){ // Kid isn't yet recovered or tested
+                                r_det = randX(0,1);
+                                if(r_det < (p_det*(sensitivity(infected_days[n], t_inc, tau)))){ //Kid is detected
+                                    kids[n] = 4;
+                                    total_det++;
+                                /*
                                 if(infected_days[n] > (incubation[n]-tau)){ //Kid is detectable
                                     r_det = randX(0,1);
                                     if(r_det < p_det){ //Kid is detected
                                         kids[n] = 4;
-                                        total_det ++;
+                                        total_det++;
+                                 
                                     }
+                                 */
                                 }
                             }
-                            
                         }
                     }
                 }

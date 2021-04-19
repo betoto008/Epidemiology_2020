@@ -8,8 +8,8 @@
 n_testing_days=(2)
 testing_days=(02 13 24)
 betas=(0.18 0.36)
-p_in_s=(0.11 0.011 0.0011)
-taus=(0 1 2 3)
+p_in_s=(0.011 0.0011)
+taus=(0, 1, 2, 3, 4)
 c++ Kitas_ensemble.cpp -lgsl -o Kitas_ensemble.x
 chmod +x Kitas_ensemble.x
 for beta in "${betas[@]}"
