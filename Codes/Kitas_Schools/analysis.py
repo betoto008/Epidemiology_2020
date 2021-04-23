@@ -35,7 +35,7 @@ betas=[0.18]
 p_in_s=[0.0011, 0.011]
 taus=[0,  4]
 
-colors = plt.cm.Set1(range(5))
+colors = ['darkorange', 'darkblue']
 markers = ['^', '*', 'o', 's', '.']
 alphas = [1, 0.5]
 labels = [['antigen', 'lollipop'], [None, None]]
