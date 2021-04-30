@@ -32,7 +32,7 @@ int main(int argc, char* argv[]){
     // Parameters
     int N = 200; //Number of kids
     int T = 12*7; //Total number of days for the simulation
-    int t_inc = 5; //Incubation period in days
+    int t_inc = 4; //Incubation period in days
     int t_inf = 6; //Infectious period in days
     int tau = argv[3][0]-'0';
     double beta = std::stod(beta_s); //Infection rate days^-1

@@ -27,37 +27,42 @@ times = 1
 
 what = ['cum_inf', 'cum_det', 'prev_inf']
 
-n_testing_days=[0,   2]
-testing_days=[[0],  [1,3]]
-testing_days2=["0",  "13"]
+n_testing_days=[0, 1,   2]
+testing_days=[[0], [2],  [1,3]]
+testing_days2=["0", "2", "13"]
 
-betas=[0.18]
+betas=[0.36]
 p_in_s=[0.0011, 0.011]
-taus=[0,  4]
+taus=[0, 5,  4]
 
-colors = ['darkorange', 'darkblue']
+colors = ['silver', 'darkorange', 'darkblue']
 markers = ['^', '*', 'o', 's', '.']
 alphas = [1, 0.5]
-labels = [['antigen', 'lollipop'], [None, None]]
+labels = [['control', 'antigen', 'lollipop'], [None, None, None]]
 z = 1
 
 for k, p_in in enumerate(p_in_s):
 	fig, ax = plt.subplots(figsize = (12,10), gridspec_kw={'top':.95, 'left':.18	})
 	fig2, ax2 = plt.subplots(figsize = (12,10), gridspec_kw={'top':.95, 'left':.18	})
 	fig3, ax3 = plt.subplots(figsize = (12,10), gridspec_kw={'top':.95, 'left':.18	})
-	for j, tau in enumerate(taus):
-		for i, beta in enumerate(betas):
+	for i, beta in enumerate(betas):
+		for j, tau in enumerate(taus):
 			means_inf = np.array([])
 			means_det = np.array([])
+			means_trans = np.array([])
 			for d, n_testing_day in enumerate(n_testing_days):
 				data = np.loadtxt(Text_files_path+'statistics_days-%d-'%(n_testing_day)+testing_days2[d]+'_beta-%.6f_pin-%.6f_tau-%d_%d.txt'%(beta, p_in, tau, times))
 				means_inf = np.append(means_inf, ((np.mean(data[:,0])))/(1))
 				means_det = np.append(means_det, ((np.mean(data[:,1])))/(1))
+				means_trans = np.append(means_trans, ((np.mean(data[:,2])))/(1))
 				if(n_testing_day==0):
 					z = np.mean(data[:,0])
+					z2 = np.mean(data[:,2])
 			#--------- Infections ---------
 			#--------- cumulative ---------
 			ax.plot(n_testing_days, means_inf/z,  marker = markers[i], linestyle = '--', color = colors[j], ms = 20, alpha = alphas[i], label = labels[i][j])
+			ax.plot(n_testing_days, means_trans/z2,  marker = markers[i+1], linestyle = '--', color = colors[j], ms = 20, alpha = alphas[i+1])
+			
 			my_plot_layout(ax=ax, yscale = 'linear', xscale = 'linear', ticks_labelsize = 28,
 	                   xlabel = 'Tests per week', ylabel = 'Cumulative infections', title = '', x_fontsize=28, y_fontsize = 28,
 	                   t_fontsize = 24)
@@ -68,6 +73,7 @@ for k, p_in in enumerate(p_in_s):
 			#--------- Infections ---------
 			#--------- prevented ---------
 			ax2.plot(n_testing_days, (z-means_inf)/z,  marker = markers[i], linestyle = '--', color = colors[j], ms = 20, alpha = alphas[i], label = labels[i][j])
+			ax2.plot(n_testing_days, (z2-means_trans)/z2,  marker = markers[i+1], linestyle = '--', color = colors[j], ms = 20, alpha = alphas[i+1])
 			my_plot_layout(ax=ax2, yscale = 'linear', xscale = 'linear', ticks_labelsize = 28,
 	                   xlabel = 'Tests per week', ylabel = 'Prevented infections', title = '', x_fontsize=28, y_fontsize = 28,
 	                   t_fontsize = 24)
@@ -83,8 +89,8 @@ for k, p_in in enumerate(p_in_s):
 			ax3.set_xticks(n_testing_days)
 			ax3.legend(fontsize = 24, loc = 0)
 
-	fig.savefig('../../Figures/Kitas_Schools/newplots/statistics_infections_percent_pin-%.3f.png'%(p_in))
-	fig2.savefig('../../Figures/Kitas_Schools/newplots/statistics_infections_prevented_percent_pin-%.3f.png'%(p_in))
-	fig3.savefig('../../Figures/Kitas_Schools/newplots/statistics_detections_pin-%.3f.png'%(p_in))
+		fig.savefig('../../Figures/Kitas_Schools/newplots/statistics_infections_percent_pin-%.3f_beta-%.3f.png'%(p_in, beta))
+		fig2.savefig('../../Figures/Kitas_Schools/newplots/statistics_infections_prevented_percent_pin-%.3f_beta-%.3f.png'%(p_in, beta))
+		fig3.savefig('../../Figures/Kitas_Schools/newplots/statistics_detections_pin-%.3f_beta-%.3f.png'%(p_in, beta))
 
 

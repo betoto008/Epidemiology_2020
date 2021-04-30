@@ -31,7 +31,7 @@ int main(int argc, char* argv[]){
     int N = 20; //Number of kids
     int T = 4*7; //Total number of days for the simulation
     int tau = argv[3][0]-'0';
-    int t_inc = 5; //Incubation period in days
+    int t_inc = 4; //Incubation period in days
     int t_inf = 6; //Infectious period in days
     double beta = std::stod(beta_s); //Infection rate days^-1
     double p_det = 0.9; //Probability of detection.
@@ -90,9 +90,11 @@ int main(int argc, char* argv[]){
     
     int total_inf = 0;
     int total_det = 0;
+    int total_trans = 0;
     
     double inf;
     double r_inf;
+    double r_inf2;
     double r_det;
     std::vector<int>::iterator a;
     //kids[10] = 1;
@@ -153,6 +155,7 @@ int main(int argc, char* argv[]){
         Det = 0;
         total_inf = 0;
         total_det = 0;
+        total_trans = 0;
         //--------------------------------------------
         
         // for-loop running over T days
@@ -171,6 +174,13 @@ int main(int argc, char* argv[]){
                         if(r_inf<(inf*beta)){
                             kids[n] = 1;
                             total_inf ++;
+                            total_trans ++;
+                        }else{
+                            r_inf2 = randX(0,1);
+                            if(r_inf2<(p_in_inf*0.5)){
+                                kids[n] = 1;
+                                total_inf ++;
+                            }
                         }
                     } else{ //Kid isn't healthy
                         
@@ -190,7 +200,7 @@ int main(int argc, char* argv[]){
                         if((a != testing_days.end())){ // Testing day?
                             if(kids[n] < 3){ // Kid isn't yet recovered or tested
                                 r_det = randX(0,1);
-                                if(r_det < (p_det*(sensitivity(infected_days[n], t_inc, tau)))){ //Kid is detected
+                                if(r_det < (p_det*(det_rate(infected_days[n], t_inc, tau)))){ //Kid is detected
                                     kids[n] = 4;
                                     total_det++;
                                 /*
@@ -211,8 +221,8 @@ int main(int argc, char* argv[]){
                 // for-loop running over N kids
                 for(int n = 0; n<N ; n++){
                     if(kids[n]==0){ //Kid is healthy
-                        r_inf = randX(0,1);
-                        if(r_inf<(p_in_inf)){
+                        r_inf2 = randX(0,1);
+                        if(r_inf2<(p_in_inf)){
                             kids[n] = 1;
                             total_inf ++;
                         }
@@ -236,7 +246,7 @@ int main(int argc, char* argv[]){
           
         }
         
-        fout << total_inf << "\t" << total_det << std::endl;
+        fout << total_inf << "\t" << total_det << "\t" << total_trans << std::endl;
     }
     fout.close();
     //fout_inc.close();

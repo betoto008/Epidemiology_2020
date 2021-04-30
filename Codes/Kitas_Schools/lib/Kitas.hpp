@@ -36,15 +36,18 @@ void update_state_kids(int N, int *H, int *Inc, int *Inf, int *Rec, int *Det, st
     
 }
 
-double sensitivity(int infected_days, int t_inc, int tau){
+double det_rate(int infected_days, int t_inc, int tau){
     double a = 0.0;
     if(tau<4){
         if(infected_days > (t_inc-tau)){
             a = 1.0;
         }
     }
-    else{
-        a = (1.0/(1.0+pow(log10(exp(3.0*infected_days))/(2.5),-4)));
+    else if(tau==4){
+        a = (1.0/(1.0+pow(log10(exp(3.0*infected_days))/(1.62),-6.27)));
+    }
+    else if(tau==5){
+        a = (1.0/(1.0+pow(log10(exp(3.0*infected_days))/(3.37),-4.4)));
     }
     
     return a;
