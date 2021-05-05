@@ -27,14 +27,14 @@ int main(int argc, char* argv[]){
     std::string Text_files_path = "../../../../../Dropbox/Research/Epidemiology_2020/Text_files/Kitas_Schools/Statistics/";
     
     // Parameters
-    int n_ensemble = 10000; //Ensemble size
+    int n_ensemble = 100000; //Ensemble size
     int N = 20; //Number of kids
-    int T = 4*7; //Total number of days for the simulation
+    int T = 3*7; //Total number of days for the simulation
     int tau = argv[3][0]-'0';
-    int t_inc = 4; //Incubation period in days
-    int t_inf = 6; //Infectious period in days
+    int t_inc = 3; //Incubation period in days
+    int t_inf = 5; //Infectious period in days
     double beta = std::stod(beta_s); //Infection rate days^-1
-    double p_det = 0.9; //Probability of detection.
+    double p_det = 0.98; //Probability of detection.
     double p_in_inf = std::stod(p_in_inf_s); //Probability of influx of a new infection to the kita. Should be proportional to the prevalence in the city.
     
     
@@ -128,6 +128,7 @@ int main(int argc, char* argv[]){
             kids[n] = 0;
             incubation[n] = t_inc;
             infectious[n] = t_inf;
+            infected_days[n] = 0;
             
             /*
             while( t_inc_n < 1.0){
@@ -177,7 +178,7 @@ int main(int argc, char* argv[]){
                             total_trans ++;
                         }else{
                             r_inf2 = randX(0,1);
-                            if(r_inf2<(p_in_inf*0.5)){
+                            if(r_inf2<(p_in_inf*0.5*beta)){
                                 kids[n] = 1;
                                 total_inf ++;
                             }
@@ -222,7 +223,7 @@ int main(int argc, char* argv[]){
                 for(int n = 0; n<N ; n++){
                     if(kids[n]==0){ //Kid is healthy
                         r_inf2 = randX(0,1);
-                        if(r_inf2<(p_in_inf)){
+                        if(r_inf2<(p_in_inf*beta)){
                             kids[n] = 1;
                             total_inf ++;
                         }

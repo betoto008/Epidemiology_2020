@@ -7,7 +7,8 @@
 #
 n_testing_days=(0 1 2 3)
 testing_days=(0 2 13 024)
-betas=(0.18, 0.36)
+#betas=(0.18, 0.36,  0.54)
+betas=(0.72)
 p_in_s=(0.0011 0.011 0.11)
 taus=(4, 5)
 c++ Kitas_ensemble.cpp -lgsl -o Kitas_ensemble.x
@@ -27,3 +28,4 @@ for beta in "${betas[@]}"
             done
         done
     done
+python analysis.py

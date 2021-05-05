@@ -44,10 +44,10 @@ double det_rate(int infected_days, int t_inc, int tau){
         }
     }
     else if(tau==4){
-        a = (1.0/(1.0+pow(log10(exp(3.0*infected_days))/(1.62),-6.27)));
+        a = (1.0/(1.0+pow(log10(exp(4.5*infected_days))/(1.24),-2.07)));
     }
     else if(tau==5){
-        a = (1.0/(1.0+pow(log10(exp(3.0*infected_days))/(3.37),-4.4)));
+        a = (1.0/(1.0+pow(log10(exp(4.5*infected_days))/(3.99),-7.14)));
     }
     
     return a;

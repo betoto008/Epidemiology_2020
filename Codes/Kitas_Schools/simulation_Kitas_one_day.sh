@@ -7,8 +7,8 @@
 #  
 n_testing_days=(1)
 testing_days=(0 1 2 3 4)
-betas=(0.18 0.36)
-p_in_s=(0.011 0.0011)
+betas=(0.18 0.36 0.54)
+p_in_s=(0.11 0.011 0.0011)
 taus=(0, 1, 2, 3, 4)
 c++ Kitas_ensemble.cpp -lgsl -o Kitas_ensemble.x
 chmod +x Kitas_ensemble.x
