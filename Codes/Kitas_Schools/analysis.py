@@ -96,25 +96,39 @@ for k, p_in in enumerate(p_in_s):
 		#fig2.savefig('../../Figures/Kitas_Schools/newplots/statistics_infections_prevented_percent_pin-%.3f_beta-%.3f.png'%(p_in, beta))
 		#fig3.savefig('../../Figures/Kitas_Schools/newplots/statistics_detections_pin-%.3f_beta-%.3f.png'%(p_in, beta))
 
+#--------- Legend 1 ---------
 custom_lines = [Line2D([0], [0],linestyle = '', marker = 'o', ms = 20, color=colors[i][2], lw=4) for i in range(int(len(p_in_s)))]
-
 labels = [r'$%.1f\%%$'%(p_in*100) for p_in in p_in_s]
 
-legend1_1 = ax.legend(custom_lines, labels, fontsize = 24, loc = 1, title = r'$p_{in}$', title_fontsize = 24)
-legend1_2 = ax2.legend(custom_lines, labels, fontsize = 24, loc = 1, title = r'$p_{in}$', title_fontsize = 24)
-legend1_3 = ax3.legend(custom_lines, labels, fontsize = 24, loc = 1, title = r'$p_{in}$', title_fontsize = 24)
+#legend1_1 = ax.legend(custom_lines, labels, fontsize = 26, loc = 1, title = r'$p_{in}$', title_fontsize = 24, framealpha = .6)
+#legend1_2 = ax2.legend(custom_lines, labels, fontsize = 26, loc = 2, title = r'$p_{in}$', title_fontsize = 24, framealpha = .6)
+legend1_3 = ax3.legend(custom_lines, labels, fontsize = 26, loc = 2, title = r'$p_{in}$', title_fontsize = 24, framealpha = .6)
 
-ax.add_artist(legend1_1)
-ax2.add_artist(legend1_2)
+#ax.add_artist(legend1_1)
+#ax2.add_artist(legend1_2)
 ax3.add_artist(legend1_3)
 
-custom_lines = [Line2D([0], [0],linestyle = '', marker = 's', ms = 20, color=i, lw=4) for i in plt.cm.Greys(np.linspace(0,1,int(len(betas)+1))[1:])]
+#----------------------------
 
+#--------- Legend 2 ---------
+custom_lines = [Line2D([0], [0],linestyle = '', marker = '^', ms = 20, color='k', lw=4),  Line2D([0], [0],linestyle = '', marker = '*', ms = 20, color='k', lw=4)]
+labels = ['Overall', 'Transmisions']
+
+legend2_1 = ax.legend(custom_lines, labels, fontsize = 26, loc = 1, title = 'Type', title_fontsize = 24, framealpha = .6)
+legend2_2 = ax2.legend(custom_lines, labels, fontsize = 26, loc = 4, title = 'Type', title_fontsize = 24, framealpha = .6)
+#legend2_3 = ax3.legend(custom_lines, labels, fontsize = 24, loc = 2, title = 'Type', title_fontsize = 24)
+
+ax.add_artist(legend2_1)
+ax2.add_artist(legend2_2)
+#ax3.add_artist(legend2_3)
+#----------------------------
+#--------- Legend 3 ---------
+custom_lines = [Line2D([0], [0],linestyle = '', marker = 's', ms = 20, color=i, lw=4) for i in plt.cm.Greys(np.linspace(0,1,int(len(betas)+1))[1:])]
 labels = [r'$%.1f$'%(beta*5) for beta in betas]
 
-ax.legend(custom_lines, labels, fontsize = 24, loc = 3, title = r'$R_0$', title_fontsize = 24)
-ax2.legend(custom_lines, labels, fontsize = 24, loc = 3, title = r'$R_0$', title_fontsize = 24)
-ax3.legend(custom_lines, labels, fontsize = 24, loc = 3, title = r'$R_0$', title_fontsize = 24)
+#ax.legend(custom_lines, labels, fontsize = 24, loc = 3, title = r'$R_0$', title_fontsize = 24, framealpha = .6)
+#ax2.legend(custom_lines, labels, fontsize = 24, loc = 4, title = r'$R_0$', title_fontsize = 24, framealpha = .6)
+ax3.legend(custom_lines, labels, fontsize = 26, loc = 3, title = r'$R_0$', title_fontsize = 24, framealpha = .6)
 
 fig.savefig('../../Figures/Kitas_Schools/Analysis/statistics_infections_percent.png')
 fig2.savefig('../../Figures/Kitas_Schools/Analysis/statistics_infections_prevented_percent.png')
