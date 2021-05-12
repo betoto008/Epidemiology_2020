@@ -91,6 +91,7 @@ int main(int argc, char* argv[]){
     int total_inf = 0;
     int total_det = 0;
     int total_trans = 0;
+    int total_det_trans = 0;
     
     double inf;
     double r_inf;
@@ -122,6 +123,8 @@ int main(int argc, char* argv[]){
         infectious.resize(N);
         std::vector < int > infected_days;
         infected_days.resize(N);
+        std::vector < int > internal_transmission;
+        internal_transmission.resize(N);
         
         // Try filling the arrays with constant values and exponentially distributed random values
         for(int n = 0 ; n<N ; n++){
@@ -129,6 +132,7 @@ int main(int argc, char* argv[]){
             incubation[n] = t_inc;
             infectious[n] = t_inf;
             infected_days[n] = 0;
+            internal_transmission[n] = 0;
             
             /*
             while( t_inc_n < 1.0){
@@ -157,6 +161,7 @@ int main(int argc, char* argv[]){
         total_inf = 0;
         total_det = 0;
         total_trans = 0;
+        total_det_trans = 0;
         //--------------------------------------------
         
         // for-loop running over T days
@@ -176,6 +181,7 @@ int main(int argc, char* argv[]){
                             kids[n] = 1;
                             total_inf ++;
                             total_trans ++;
+                            internal_transmission[n] = 1;
                         }else{
                             r_inf2 = randX(0,1);
                             if(r_inf2<(p_in_inf*0.5*beta)){
@@ -204,6 +210,9 @@ int main(int argc, char* argv[]){
                                 if(r_det < (p_det*(det_rate(infected_days[n], t_inc, tau)))){ //Kid is detected
                                     kids[n] = 4;
                                     total_det++;
+                                    if (internal_transmission[n]==1) {
+                                        total_det_trans++;
+                                    }
                                 /*
                                 if(infected_days[n] > (incubation[n]-tau)){ //Kid is detectable
                                     r_det = randX(0,1);
@@ -247,7 +256,7 @@ int main(int argc, char* argv[]){
           
         }
         
-        fout << total_inf << "\t" << total_det << "\t" << total_trans << std::endl;
+        fout << total_inf << "\t" << total_det << "\t" << total_trans << "\t" << total_det_trans << std::endl;
     }
     fout.close();
     //fout_inc.close();
