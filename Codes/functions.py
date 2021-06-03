@@ -16,6 +16,40 @@ from scipy.interpolate import interp1d
 from models import *
 
 
+#----------------- Functions -----------------
+def node_degrees(Amat):
+        return Amat.sum(axis=0).reshape(N,1)
+    
+def my_power_law_function(x,a,b,c):
+    return 0.0 + b*(x-1)**(-c)
+
+def my_linear_function(x, a, b):
+    return a+b*x
+
+def est_function(beta, gamma):
+    lambda1 = (np.sqrt(1-4*((sigma*gamma-sigma*beta)/(sigma+gamma)**2))-1)
+    return (1/(lambda1))
+
+def est_function_0(beta, gamma):
+    lambda0 = (((beta)/(gamma))-1)
+    return (1/(lambda0))
+
+def cumulative_power_law(x, a, b):
+    return (x**(a+1)-1)/(b**(a+1)-1)
+
+def cumulative_power_law_2(x, a, b):
+    return 1 - (x/b)**(a+1)
+
+def my_plot_layout(ax, yscale = 'linear', xscale = 'linear', ticks_labelsize = 24,
+                   xlabel = '', ylabel = '', title = '', x_fontsize=24, y_fontsize = 24,
+                   t_fontsize = 24):
+    ax.tick_params(labelsize = ticks_labelsize)
+    ax.set_yscale(yscale)
+    ax.set_xscale(xscale)
+    ax.set_xlabel(xlabel, fontsize = x_fontsize)
+    ax.set_ylabel(ylabel, fontsize = y_fontsize)
+    ax.set_title(title, fontsize = y_fontsize)
+
 def prob_detection_stat(N, n, m):
 
 	return (1-(scipy.special.comb(N-n,m))/(scipy.special.comb(N,m)))
@@ -41,6 +75,21 @@ def prob_detection_acum2(N, n, m):
 		prob_array =np.append(prob_array, prob)
 
 	return prob_array
+
+def sort_nodes(p, beta, sigma, gamma, data_I, data_nodes):
+
+	max_values = np.array([np.max(data_I[i,:]) for i in np.arange(len(data_I[:,0]))])
+	data_ext = np.array([((data_I[i,-1]==0) & (max(data_I[i,:]) < 20)) for i in range(len(data_I[:,0]))])
+
+	nodes_ext = data_nodes[data_ext]
+	nodes_succ = data_nodes[~data_ext]
+	I_ext = data_I[data_ext]
+	I_succ = data_I[~data_ext]
+
+	return nodes_ext, nodes_succ, I_ext, I_succ, max_values
+
+
+#----------------- Plots -----------------
 
 def plot_prob_time(T_total, sample_sizes, R0, sigma, N, func_time, func_infec, colors, log_scale = False, net_name = 'no_network', folder = ''):
 
@@ -134,7 +183,7 @@ def plot_cum_prob_time(T_total, sample_sizes, R0, sigma, p, N, func_time, func_i
 		
 		np.savetxt(folder + '/prob_cum_detection_time_R0%.1f_sigma%.1f_N%.0f_p%.1f_m%d_'%(R0, sigma, N, p, m)+net_name+'.txt', (func_prob, func_prob2), fmt = '%.3f')
 
-		#ax.plot(func_time, np.cumsum(func_prob), '.', c = c, ms = 10, label = 'm = %d'%m)
+		ax.plot(func_time, np.cumsum(func_prob), '.', c = c, ms = 10, label = 'm = %d'%m)
 		ax.plot(time_x, f(time_x),'-', c = c, linewidth = 4, label = 'm = %d'%m)
 		ax.plot(time_x, f2(time_x),'-', c = c, linewidth = 4, alpha = 0.5)
 		ax.vlines(time_x[np.where(f(time_x)<=0.91)][-1], 0,0.9, linestyle = 'dashed', color = c, alpha = 0.5, label = '$t_{%d} = %.1f $days'%(m, time_x[np.where(f(time_x)<=0.91)][-1]), linewidth = 3)
@@ -150,7 +199,7 @@ def plot_cum_prob_time(T_total, sample_sizes, R0, sigma, p, N, func_time, func_i
 	ax.legend(fontsize=20, loc=0)
 	ax.set_xlim(0,T_total)
 	ax.set_ylim(0,1.1)
-	ax.set_xticks(func_time[::int(T_total/10)])
+	ax.set_xticks(func_time[::int(T_total/5)])
 	ax2 = ax.twiny()
 	ax2.set_xlim(ax.get_xlim())
 	ax2.set_xticks(ax.get_xticks())
@@ -162,7 +211,6 @@ def plot_cum_prob_time(T_total, sample_sizes, R0, sigma, p, N, func_time, func_i
 	return ax
 	if not(external_ax):
 		return fig, ax
-	
 
 def plot_cum_prob_ind(I_max, sample_sizes, R0, N, func_time, func_infec, colors, log_scale = False, net_name = 'no_network', folder = ''):
 
@@ -202,64 +250,6 @@ def plot_cum_prob_ind(I_max, sample_sizes, R0, N, func_time, func_infec, colors,
 	plt.savefig(folder + 'prob_cum_detection_ind_R0%.1f_N%.0f_'%(R0, N)+net_name+'.pdf')
 
 	return fig, ax
-
-def node_degrees(Amat):
-	
-        return Amat.sum(axis=0).reshape(N,1)
-
-def run_deterministic(N, beta, sigma, gamma, T_total, folder):
-
-	#### Fill array with analytical solution
-	lambda1 = ((-sigma-gamma)/(2)) + (1/2)*np.sqrt((sigma-gamma)**2 + 4*sigma*beta)
-	lambda2 = ((-sigma-gamma)/(2)) - (1/2)*np.sqrt((sigma-gamma)**2 + 4*sigma*beta)
-	#print('lambda_1 = ', lambda1)
-	c1 = (((lambda1-lambda2)/beta))**(-1)
-	c2 = -c1
-	time = np.linspace(0, T_total, T_total+1)
-	E_solution = c1*np.exp(lambda1*time) + c2*np.exp(lambda2*time)
-	I_solution = c1*np.exp(lambda1*time)*((lambda1+sigma)/(beta)) + c2*np.exp(lambda2*time)*((lambda2+sigma)/(beta))
-	sol_total_approx = c1*np.exp(lambda1*time)*(1+((lambda1+sigma)/(beta)))
-	I_max_2 = max(np.concatenate((E_solution, I_solution)))
-
-	np.savetxt(folder+'/deterministic_R0%.1f_sigma%.1f_N%d.txt'%(beta/gamma, sigma, N), (time, E_solution, I_solution), fmt = '%.3f')
-
-	return lambda1, lambda2, time, E_solution, I_solution, sol_total_approx, I_max_2
-
-def run_network_trajectory(N, G, beta, sigma, gamma, T_total, intervals, p, initE, initI, est, folder):
-
-	R0 = beta/gamma
-	## Exting (0) or succesful (1) 
-	status = 0
-	model = SEIRSNetworkModel(G       =G, 
-	                          beta    =beta, 
-	                          sigma   =sigma, 
-	                          gamma   =gamma, 
-	                          p = p,
-	                          initE = initE,
-	                          initI = initI,
-	                          store_Xseries=True)
-	##Run model
-	model.run(T=T_total*1.1, print_interval = False)
-	Eseries = model.numE
-	Iseries = model.numI
-	I_max_1 = max(np.concatenate((model.numE,model.numI)))
-
-	#### Get degree of initial infected node
-	init_node = np.where(model.Xseries[0,:]==3)[0][0]
-	init_degree = G.degree(init_node)
-
-	## Change status
-	if(model.numI[-1]>0):
-	    status = 1
-
-
-	#### Fill array with analytical solution
-	lambda1, lambda2, time, E_solution, I_solution, sol_total_approx, I_max_2 = run_deterministic(N, beta, sigma, gamma, T_total, '../../../../Dropbox/Research/Epidemiology_2020/Text_files/Deterministic/')
-
-	np.savetxt(folder+'/Xseries_R0%.1f_sigma%.2f_N%d_p%.1f.txt'%(beta/gamma, sigma, N, p), (model.Xseries), fmt = '%d')
-
-	return model.tseries, model.numE, model.numI, I_max_1, I_max_2, time, E_solution, I_solution, sol_total_approx, status
-
 
 def plot_trajectory(N, G_name, beta, sigma, gamma, T_total, p, initE, initI, est, Tseries, Eseries, Iseries, I_max_1, I_max_2, time, E_solution, I_solution, folder, external_ax = False, labels = False, succ = False, plot_E=False, plot_I=False):
 	
@@ -325,6 +315,118 @@ def plot_trajectory(N, G_name, beta, sigma, gamma, T_total, p, initE, initI, est
 		fig.savefig(folder+'trajectory_R0%.1f_N%.0f_p%.1f_'%(beta/gamma, N, p)+G_name+'.png', transparent=True)
 		return fig, ax
 
+def plot_ensemble(N, G_name, beta, sigma, gamma, T_total, n_ensemble, p, initI, est, T_avg, E_avg, I_avg, E_avg2, I_avg2, epi_nodes, ext_nodes, I_max_1, I_max_2, counter, time, E_solution, I_solution, folder, external_ax1 = False, external_ax2 = False, plot_E=False, plot_I=False):
+
+	seaborn.set_style('ticks')
+	seaborn.despine()
+
+	lambda1 = ((-sigma-gamma)/(2)) + (1/2)*np.sqrt((sigma-gamma)**2 + 4*sigma*beta)
+	est = 1/lambda1
+
+	ax1 = external_ax1
+	if not(external_ax1):
+		fig1, ax1 = plt.subplots(figsize=(12,8)) #, gridspec_kw={'width_ratios': [2,1]}
+
+	E_var = E_avg2 - E_avg**2
+	I_var = I_avg2 - I_avg**2
+
+	if(plot_E):
+		ax1.plot(T_avg, E_avg, '.', color = 'darkorange', ms=15, label = 'Simulation E')
+		ax1.plot(time, E_solution,'-', color = 'darkorange', ms=8, label='$R_0^*$ approx.', linewidth = 4)
+		ax1.fill_between(T_avg, E_avg-np.sqrt(E_var), E_avg+np.sqrt(E_var), color = 'darkorange', alpha=0.4)
+	if(plot_I):
+		ax1.plot(T_avg, I_avg, '.', color = 'darkred', ms=15, label = 'Simulation I')
+		ax1.plot(time, I_solution,'-', color = 'darkred', ms=8, label='$R_0^*$ approx.', linewidth = 4)
+		ax1.fill_between(T_avg, I_avg-np.sqrt(I_var), I_avg+np.sqrt(I_var), color = 'darkred', alpha=0.4)
+
+	ax1.hlines(est, 0, T_total, linestyle = 'dashed', label = 'Establishment', linewidth = 4)
+	#ax[0].vlines(est*np.log(np.exp(0.577216)/(1+(1/est))), 1, est, linestyle = 'dashed', alpha = 0.5) 
+	ax1.set_xlim(0,int(T_total-1))
+	ax1.legend(fontsize=14)
+	ax1.set_xlabel('Time [days]', fontsize = 30)
+	ax1.set_ylabel('Indiv.', fontsize = 30)
+	#ax1.set_title(r'$R_0 = %.01f$ ; $N = %.0f$ ; $p=%.1f$ ; sim with %d/%d not extinct'%(beta/gamma, N, p, counter,n_ensemble), fontsize = 18)
+	ax1.tick_params(labelsize = 30)
+	ax1.set_ylim(0.5,max(I_max_1*2, I_max_2*2))
+	ax1.legend(fontsize = 26, loc = 2)
+	ax1.set_yscale('log')
+
+	if not(external_ax1):
+		fig1.savefig(folder+'/ensemble_R0%.1f_sigma%.1f_N%.0f_p%.1f_'%(beta/gamma, sigma, N, p)+G_name+'.pdf')
+
+	ax2 = external_ax2
+	if not(external_ax2):
+		fig2, ax2 = plt.subplots(figsize=(12,8)) #, gridspec_kw={'width_ratios': [2,1]}
+
+	ax2.hist(ext_nodes, color = 'r', alpha = 0.5, label= 'Extint', density = True, bins = range(50))
+	ax2.hist(epi_nodes, color = 'b', alpha = 0.5, label= 'Succesful', density = True, bins = range(50))
+	ax2.set_xlabel('Degree', fontsize = 30)
+	ax2.set_ylabel('Prob.', fontsize = 30)
+	#ax2.set_title('Degree of first infected node', fontsize = 16)
+	ax2.tick_params(labelsize = 30)
+	ax2.legend()
+	ax2.set_yscale('log')
+
+	if not(external_ax2):
+		fig2.savefig(folder+'/histograms_R0%.1f_sigma%.1f_N%.0f_p%.1f_'%(beta/gamma, sigma, N, p)+G_name+'.pdf')
+
+	if not(external_ax1):
+		if not(external_ax2):
+			return fig1, ax1, fig2, ax2
+
+#----------------- Models -----------------
+def run_deterministic(N, beta, sigma, gamma, T_total, folder):
+
+	#### Fill array with analytical solution
+	lambda1 = ((-sigma-gamma)/(2)) + (1/2)*np.sqrt((sigma-gamma)**2 + 4*sigma*beta)
+	lambda2 = ((-sigma-gamma)/(2)) - (1/2)*np.sqrt((sigma-gamma)**2 + 4*sigma*beta)
+	#print('lambda_1 = ', lambda1)
+	c1 = (((lambda1-lambda2)/beta))**(-1)
+	c2 = -c1
+	time = np.linspace(0, T_total, T_total+1)
+	E_solution = c1*np.exp(lambda1*time) + c2*np.exp(lambda2*time)
+	I_solution = c1*np.exp(lambda1*time)*((lambda1+sigma)/(beta)) + c2*np.exp(lambda2*time)*((lambda2+sigma)/(beta))
+	sol_total_approx = c1*np.exp(lambda1*time)*(1+((lambda1+sigma)/(beta)))
+	I_max_2 = max(np.concatenate((E_solution, I_solution)))
+
+	np.savetxt(folder+'/deterministic_R0%.1f_sigma%.1f_N%d.txt'%(beta/gamma, sigma, N), (time, E_solution, I_solution), fmt = '%.3f')
+
+	return lambda1, lambda2, time, E_solution, I_solution, sol_total_approx, I_max_2
+
+def run_network_trajectory(N, G, beta, sigma, gamma, T_total, intervals, p, initE, initI, est, folder):
+
+	R0 = beta/gamma
+	## Exting (0) or succesful (1) 
+	status = 0
+	model = SEIRSNetworkModel(G       =G, 
+	                          beta    =beta, 
+	                          sigma   =sigma, 
+	                          gamma   =gamma, 
+	                          p = p,
+	                          initE = initE,
+	                          initI = initI,
+	                          store_Xseries=True)
+	##Run model
+	model.run(T=T_total*1.1, print_interval = False)
+	Eseries = model.numE
+	Iseries = model.numI
+	I_max_1 = max(np.concatenate((model.numE,model.numI)))
+
+	#### Get degree of initial infected node
+	init_node = np.where(model.Xseries[0,:]==3)[0][0]
+	init_degree = G.degree(init_node)
+
+	## Change status
+	if(model.numI[-1]>0):
+	    status = 1
+
+
+	#### Fill array with analytical solution
+	lambda1, lambda2, time, E_solution, I_solution, sol_total_approx, I_max_2 = run_deterministic(N, beta, sigma, gamma, T_total, '../../../../Dropbox/Research/Epidemiology_2020/Text_files/Deterministic/')
+
+	np.savetxt(folder+'/Xseries_R0%.1f_sigma%.2f_N%d_p%.1f.txt'%(beta/gamma, sigma, N, p), (model.Xseries), fmt = '%d')
+
+	return model.tseries, model.numE, model.numI, I_max_1, I_max_2, time, E_solution, I_solution, sol_total_approx, status
 
 def run_network_ensemble(N, G, G_name, beta, sigma, gamma, T_total, intervals, n_ensemble, p, initE, initI, folder, stochastic, sampling, sample_sizes, aposteriori = False, slope = None):
 
@@ -488,65 +590,6 @@ def run_network_ensemble(N, G, G_name, beta, sigma, gamma, T_total, intervals, n
 	
 	#return T_avg, E_avg_succ/counter, I_avg_succ/counter, E_avg2_succ/counter, I_avg2_succ/counter, E_avg_ext/(n_ensemble-counter), I_avg_ext/(n_ensemble-counter), E_avg2_ext/(n_ensemble-counter), I_avg2_ext/(n_ensemble-counter), E_avg_total/n_ensemble, I_avg_total/n_ensemble, E_avg2_total/n_ensemble, I_avg2_total/n_ensemble, epi_nodes, ext_nodes, I_max_1, I_max_2, counter, time, E_solution, I_solution, sol_total_approx
 	return True
-
-def plot_ensemble(N, G_name, beta, sigma, gamma, T_total, n_ensemble, p, initI, est, T_avg, E_avg, I_avg, E_avg2, I_avg2, epi_nodes, ext_nodes, I_max_1, I_max_2, counter, time, E_solution, I_solution, folder, external_ax1 = False, external_ax2 = False, plot_E=False, plot_I=False):
-
-	seaborn.set_style('ticks')
-	seaborn.despine()
-
-	lambda1 = ((-sigma-gamma)/(2)) + (1/2)*np.sqrt((sigma-gamma)**2 + 4*sigma*beta)
-	est = 1/lambda1
-
-	ax1 = external_ax1
-	if not(external_ax1):
-		fig1, ax1 = plt.subplots(figsize=(12,8)) #, gridspec_kw={'width_ratios': [2,1]}
-
-	E_var = E_avg2 - E_avg**2
-	I_var = I_avg2 - I_avg**2
-
-	if(plot_E):
-		ax1.plot(T_avg, E_avg, '.', color = 'darkorange', ms=15, label = 'Simulation E')
-		ax1.plot(time, E_solution,'-', color = 'darkorange', ms=8, label='$R_0^*$ approx.', linewidth = 4)
-		ax1.fill_between(T_avg, E_avg-np.sqrt(E_var), E_avg+np.sqrt(E_var), color = 'darkorange', alpha=0.4)
-	if(plot_I):
-		ax1.plot(T_avg, I_avg, '.', color = 'darkred', ms=15, label = 'Simulation I')
-		ax1.plot(time, I_solution,'-', color = 'darkred', ms=8, label='$R_0^*$ approx.', linewidth = 4)
-		ax1.fill_between(T_avg, I_avg-np.sqrt(I_var), I_avg+np.sqrt(I_var), color = 'darkred', alpha=0.4)
-
-	ax1.hlines(est, 0, T_total, linestyle = 'dashed', label = 'Establishment', linewidth = 4)
-	#ax[0].vlines(est*np.log(np.exp(0.577216)/(1+(1/est))), 1, est, linestyle = 'dashed', alpha = 0.5) 
-	ax1.set_xlim(0,int(T_total-1))
-	ax1.legend(fontsize=14)
-	ax1.set_xlabel('Time [days]', fontsize = 30)
-	ax1.set_ylabel('Indiv.', fontsize = 30)
-	#ax1.set_title(r'$R_0 = %.01f$ ; $N = %.0f$ ; $p=%.1f$ ; sim with %d/%d not extinct'%(beta/gamma, N, p, counter,n_ensemble), fontsize = 18)
-	ax1.tick_params(labelsize = 30)
-	ax1.set_ylim(0.5,max(I_max_1*2, I_max_2*2))
-	ax1.legend(fontsize = 26, loc = 2)
-	ax1.set_yscale('log')
-
-	if not(external_ax1):
-		fig1.savefig(folder+'/ensemble_R0%.1f_sigma%.1f_N%.0f_p%.1f_'%(beta/gamma, sigma, N, p)+G_name+'.pdf')
-
-	ax2 = external_ax2
-	if not(external_ax2):
-		fig2, ax2 = plt.subplots(figsize=(12,8)) #, gridspec_kw={'width_ratios': [2,1]}
-
-	ax2.hist(ext_nodes, color = 'r', alpha = 0.5, label= 'Extint', density = True, bins = range(50))
-	ax2.hist(epi_nodes, color = 'b', alpha = 0.5, label= 'Succesful', density = True, bins = range(50))
-	ax2.set_xlabel('Degree', fontsize = 30)
-	ax2.set_ylabel('Prob.', fontsize = 30)
-	#ax2.set_title('Degree of first infected node', fontsize = 16)
-	ax2.tick_params(labelsize = 30)
-	ax2.legend()
-	ax2.set_yscale('log')
-
-	if not(external_ax2):
-		fig2.savefig(folder+'/histograms_R0%.1f_sigma%.1f_N%.0f_p%.1f_'%(beta/gamma, sigma, N, p)+G_name+'.pdf')
-
-	if not(external_ax1):
-		if not(external_ax2):
-			return fig1, ax1, fig2, ax2
 
 def run_sampling(N, beta, sigma, gamma, T_total, p, m, I_series, folder, file_time, file_n, G_name):
 	#### Samping protocol
