@@ -183,7 +183,7 @@ def plot_cum_prob_time(T_total, sample_sizes, R0, sigma, p, N, func_time, func_i
 		
 		np.savetxt(folder + '/prob_cum_detection_time_R0%.1f_sigma%.1f_N%.0f_p%.1f_m%d_'%(R0, sigma, N, p, m)+net_name+'.txt', (func_prob, func_prob2), fmt = '%.3f')
 
-		ax.plot(func_time, np.cumsum(func_prob), '.', c = c, ms = 10, label = 'm = %d'%m)
+		#ax.plot(func_time, np.cumsum(func_prob), '.', c = c, ms = 10, label = 'm = %d'%m)
 		ax.plot(time_x, f(time_x),'-', c = c, linewidth = 4, label = 'm = %d'%m)
 		ax.plot(time_x, f2(time_x),'-', c = c, linewidth = 4, alpha = 0.5)
 		ax.vlines(time_x[np.where(f(time_x)<=0.91)][-1], 0,0.9, linestyle = 'dashed', color = c, alpha = 0.5, label = '$t_{%d} = %.1f $days'%(m, time_x[np.where(f(time_x)<=0.91)][-1]), linewidth = 3)
@@ -375,7 +375,7 @@ def plot_ensemble(N, G_name, beta, sigma, gamma, T_total, n_ensemble, p, initI, 
 			return fig1, ax1, fig2, ax2
 
 #----------------- Models -----------------
-def run_deterministic(N, beta, sigma, gamma, T_total, folder):
+def run_deterministic(N, beta, sigma, gamma, p, T_total, folder):
 
 	#### Fill array with analytical solution
 	lambda1 = ((-sigma-gamma)/(2)) + (1/2)*np.sqrt((sigma-gamma)**2 + 4*sigma*beta)
@@ -389,7 +389,7 @@ def run_deterministic(N, beta, sigma, gamma, T_total, folder):
 	sol_total_approx = c1*np.exp(lambda1*time)*(1+((lambda1+sigma)/(beta)))
 	I_max_2 = max(np.concatenate((E_solution, I_solution)))
 
-	np.savetxt(folder+'/deterministic_R0%.1f_sigma%.1f_N%d.txt'%(beta/gamma, sigma, N), (time, E_solution, I_solution), fmt = '%.3f')
+	np.savetxt(folder+'/deterministic_analytic_R0%.1f_sigma%.1f_p%.1f_N%d.txt'%(beta/gamma, sigma, p, N), (time, E_solution, I_solution), fmt = '%.3f')
 
 	return lambda1, lambda2, time, E_solution, I_solution, sol_total_approx, I_max_2
 
@@ -422,7 +422,7 @@ def run_network_trajectory(N, G, beta, sigma, gamma, T_total, intervals, p, init
 
 
 	#### Fill array with analytical solution
-	lambda1, lambda2, time, E_solution, I_solution, sol_total_approx, I_max_2 = run_deterministic(N, beta, sigma, gamma, T_total, '../../../../Dropbox/Research/Epidemiology_2020/Text_files/Deterministic/')
+	lambda1, lambda2, time, E_solution, I_solution, sol_total_approx, I_max_2 = run_deterministic(N, beta, sigma, gamma, p, T_total, '../../../../Dropbox/Research/Epidemiology_2020/Text_files/Deterministic/')
 
 	np.savetxt(folder+'/Xseries_R0%.1f_sigma%.2f_N%d_p%.1f.txt'%(beta/gamma, sigma, N, p), (model.Xseries), fmt = '%d')
 
@@ -492,19 +492,19 @@ def run_network_ensemble(N, G, G_name, beta, sigma, gamma, T_total, intervals, n
 
 			#### Fill equally-spaced time array with samples than made it through.
 			if(model.tseries[-1]>=(T_total)):
-				if(max(model.numI)>(est)):
+				if(np.max(model.numI)>(est)):
 					epidemic = 1
 					counter +=1
 				else:
 					extinction = 1
 				j = 0
-				for k in range(intervals):
+				for k in np.arange(intervals):
 					while(model.tseries[j]<T_avg[k]):
 						j = j+1
 					E_avg_temp[k] += model.numE[j]
 					I_avg_temp[k] += model.numI[j]
 			else:
-				if(max(model.numI)>(est)):
+				if(np.max(model.numI)>(est)):
 					epidemic = 1
 					counter +=1
 				else:
@@ -529,11 +529,11 @@ def run_network_ensemble(N, G, G_name, beta, sigma, gamma, T_total, intervals, n
 		####### IF SAMPLING #######
 		if(sampling):
 			if(model.tseries[-1]>=(T_total)):
-				if(max(model.numI)>(est*2)):
+				if(np.max(model.numI)>(est*2)):
 					epidemic = 1
 					counter +=1
 			else:
-				if(max(model.numI)>(est*2)):
+				if(np.max(model.numI)>(est*2)):
 					epidemic = 1
 					counter +=1
 				else:
