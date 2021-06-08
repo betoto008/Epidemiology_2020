@@ -11,6 +11,7 @@ import math
 import sys
 import random
 import seaborn
+from matplotlib.lines import Line2D
 
 from scipy.interpolate import interp1d
 from models import *
@@ -251,7 +252,7 @@ def plot_cum_prob_ind(I_max, sample_sizes, R0, N, func_time, func_infec, colors,
 
 	return fig, ax
 
-def plot_trajectory(N, G_name, beta, sigma, gamma, T_total, p, initE, initI, est, Tseries, Eseries, Iseries, I_max_1, I_max_2, time, E_solution, I_solution, folder, external_ax = False, labels = False, succ = False, plot_E=False, plot_I=False):
+def plot_trajectory(N, G_name, beta, sigma, gamma, T_total, p, initE, initI, est, Tseries, Eseries, Iseries, I_max_1, I_max_2, time, E_solution, I_solution, folder, external_ax = False, labels = False, succ = False, plot_E=False, plot_I=False, plot_det = False):
 	
 	
 	seaborn.set_style('ticks')
@@ -264,51 +265,48 @@ def plot_trajectory(N, G_name, beta, sigma, gamma, T_total, p, initE, initI, est
 	if not(external_ax):
 		fig, ax = plt.subplots(figsize=(12,8))
 
+	colors_I = ['black', 'darkred', 'indigo']
+
+
 	if(succ):
-		if(labels):
+		if(plot_det):
 			if(plot_E):
-				ax.plot(Tseries, Eseries, '-', ms=10, label = 'Simulation E',color='darkorange', alpha = 0.5, linewidth = 4)
-				ax.plot(time, E_solution, '-', ms=10, label='$R_0^*$ approx.', color = 'darkorange', linewidth = 5)
+				ax.plot(Tseries, Eseries, '-', ms=10,color='darkorange', alpha = 0.6, linewidth = 4)
+				ax.plot(time, E_solution, '--', ms=10, color = 'darkorange', alpha = 0.6, linewidth = 3)
 			if(plot_I):
-				ax.plot(Tseries, Iseries, '-', ms=10, label = 'Simulation I',color='darkred', alpha = 0.5, linewidth = 4)
-				ax.plot(time, I_solution,'-', ms=10, label='$R_0^*$ approx.', color = 'darkred', linewidth = 5)
-			ax.hlines(est, 0, T_total, linestyle = 'dashed', label = 'Establishment', linewidth = 4)
+				ax.plot(Tseries, Iseries, '-', ms=10, color=colors_I[1], alpha = 0.6, linewidth = 4)
+				ax.plot(time, I_solution,'--', ms=10, color = colors_I[0], alpha = 0.6, linewidth = 3)
+			ax.hlines(est, 0, T_total, linestyle = 'dashed', linewidth = 4, color = 'silver', alpha = .8)
 		else:
 			if(plot_E):
-				ax.plot(Tseries, Eseries, '-', ms=10,color='darkorange', alpha = 0.5, linewidth = 4)
-				ax.plot(time, E_solution, '-', ms=10, color = 'darkorange', linewidth = 5)
+				ax.plot(Tseries, Eseries, '-', ms=10, color='darkorange', alpha = 0.6, linewidth = 4)
 			if(plot_I):
-				ax.plot(Tseries, Iseries, '-', ms=10, color='darkred', alpha = 0.5, linewidth = 4)
-				ax.plot(time, I_solution, '-', ms=10, color = 'darkred', linewidth = 5)
-			ax.hlines(est, 0, T_total, linestyle = 'dashed', linewidth = 4)
+				ax.plot(Tseries, Iseries, '-', ms=10, color=colors_I[1], alpha = 0.6, linewidth = 4)
+			ax.hlines(est, 0, T_total, linestyle = 'dashed', linewidth = 4, color = 'silver', alpha = .8)
 	else:
-		if(labels):
+		if(plot_det):
 			if(plot_E):
-				ax.plot(Tseries, Eseries, '--', ms=10, label = 'Simulation E',color='darkorange', alpha = 0.5, linewidth = 4)
-				ax.plot(time, E_solution, '-', ms=10, label='$R_0^*$ approx.', color = 'darkorange', linewidth = 5)
+				ax.plot(Tseries, Eseries, '-', ms=10, color='darkorange', alpha = 0.6, linewidth = 4)
+				ax.plot(time, E_solution, '--', ms=10, color = 'darkorange', alpha = 0.6, linewidth = 3)
 			if(plot_I):
-				ax.plot(Tseries, Iseries, '--', ms=10, label = 'Simulation I',color='darkred', alpha = 0.5, linewidth = 4)
-				ax.plot(time, I_solution, '-', ms=10, label='$R_0^*$ approx.', color = 'darkred', linewidth = 5)
-			ax.hlines(est, 0, T_total, linestyle = 'dashed', label = 'Establishment', linewidth = 4)
+				ax.plot(Tseries, Iseries, '-', ms=10, color=colors_I[2], alpha = 0.6, linewidth = 4)
+				ax.plot(time, I_solution, '--', ms=10, color = colors_I[0], alpha = 0.6, linewidth = 3)
+			ax.hlines(est, 0, T_total, linestyle = 'dashed', label = 'Establishment', linewidth = 4, color = 'silver', alpha = .8)
 		else:
 			if(plot_E):
-				ax.plot(Tseries, Eseries, '--', ms=10,color='darkorange', alpha = 0.5, linewidth = 4)
-				ax.plot(time, E_solution, '-', ms=10, color = 'darkorange', linewidth = 5)
+				ax.plot(Tseries, Eseries, '-', ms=10,color='darkorange', alpha = 0.6, linewidth = 4)
 			if(plot_I):
-				ax.plot(Tseries, Iseries, '--', ms=10, color='darkred', alpha = 0.5, linewidth = 4)
-				ax.plot(time, I_solution,'-', ms=10, color = 'darkred', linewidth = 5)
-			ax.hlines(est, 0, T_total, linestyle = 'dashed', linewidth = 4)
+				ax.plot(Tseries, Iseries, '-', ms=10, color=colors_I[2], alpha = 0.6, linewidth = 4)
+			ax.hlines(est, 0, T_total, linestyle = 'dashed', linewidth = 4, color = 'silver', alpha = .8)
 
 	#ax.vlines(est*np.log(np.exp(0.577216)/(1+(1/est))), 1, est, linestyle = 'dashed', alpha = 0.3) 
+	my_plot_layout(ax=ax, xlabel = 'Time [days]', ylabel = 'Indiv.', yscale  ='log')
 	ax.set_xlim(0,int(T_total-1))
-	ax.legend(fontsize=14)
-	ax.set_xlabel('Time [days]', fontsize = 30)
-	ax.set_ylabel('Indiv.', fontsize = 30)
-	#ax.set_title(r'$R_0 = %.01f$ ; $N = %.0f$ ; $p=%.1f$'%(beta/gamma, N, p), fontsize = 28)
-	ax.tick_params(labelsize = 30)
 	ax.set_ylim(0.5,I_max_2*1.1)
-	ax.legend(fontsize = 26, loc = 2)
-	ax.set_yscale('log')
+	lines_symbols = [Line2D([0], [0], linestyle = '-',linewidth = 4, color=colors_I[1], marker = '', ms = 12, alpha = 0.6), Line2D([0], [0], linestyle = '-',linewidth = 4, color=colors_I[2], marker = '', ms = 12, alpha = 0.6), 
+	Line2D([0], [0], linestyle = '--',linewidth = 3, color=colors_I[0], marker = '', ms = 12, alpha = 0.6), Line2D([0], [0], linestyle = '--',linewidth = 4, color='silver', marker = '', ms = 12, alpha = 0.6)]
+	labels_symbols = ['Established', 'Extinct', 'Deterministic', 'Establishment']
+	ax.legend(lines_symbols, labels_symbols, fontsize = 24, loc = 2)
 
 	if not(external_ax):
 		fig.savefig(folder+'trajectory_R0%.1f_N%.0f_p%.1f_'%(beta/gamma, N, p)+G_name+'.pdf')
@@ -422,7 +420,7 @@ def run_network_trajectory(N, G, beta, sigma, gamma, T_total, intervals, p, init
 
 
 	#### Fill array with analytical solution
-	lambda1, lambda2, time, E_solution, I_solution, sol_total_approx, I_max_2 = run_deterministic(N, beta, sigma, gamma, p, T_total, '../../../../Dropbox/Research/Epidemiology_2020/Text_files/Deterministic/')
+	lambda1, lambda2, time, E_solution, I_solution, sol_total_approx, I_max_2 = run_deterministic(N, beta, sigma, gamma, p, T_total, '../../../../Dropbox/Research/Epidemiology_2020/Text_files/Deterministic/Single_trajectory/')
 
 	np.savetxt(folder+'/Xseries_R0%.1f_sigma%.2f_N%d_p%.1f.txt'%(beta/gamma, sigma, N, p), (model.Xseries), fmt = '%d')
 
@@ -463,7 +461,7 @@ def run_network_ensemble(N, G, G_name, beta, sigma, gamma, T_total, intervals, n
 	for i in range(n_ensemble):
 
 		G = nx.barabasi_albert_graph(N, 2)
-		nodeDegrees = [d[1] for d in G.degree()]
+		nodeDegrees = np.array([d[1] for d in G.degree()])
 		#file_network = open(folder+'/network_degree_distrib_N%d.txt'%(N),'a')
 		#np.savetxt(file_network, nodeDegrees,fmt = '%d')
 		#file_network.close()
