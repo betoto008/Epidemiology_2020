@@ -39,6 +39,7 @@ for q, p in enumerate(ps):
         if(p==0.0):
                 R0s = np.array([4.5, 3.0, 2.0, 1.2, 0.8])
                 Ts = 1- ((meanDegree)/((meanDegree + R0s)))
+                #Ts = 1-np.array([np.sum(p_k*((k)/(k+(b/gamma)))) for b in R0s*gamma])
                 u_sols = np.array([u[np.array([np.sum(p_k*k*(1+(i-1)*T)**(k-1)) for i in u])>(np.sum(p_k*k)*u)][-1] for T in Ts])
         if(p==1.0):
                 R0s = np.array([4.5, 3.0, 2.0, 1.2])
@@ -48,7 +49,7 @@ for q, p in enumerate(ps):
                 fig, ax = plt.subplots(figsize = (10,8))
                 fig2, ax2 = plt.subplots(figsize = (10,8))
 
-                R0_array = np.linspace(1.01, 6, 30)
+                R0_array = np.linspace(1.01, 6, 20)
                 T_array = R0_array*T_c
                 u_sol_array = np.array([u[np.array([np.sum(p_k*k*(1+(i-1)*T)**(k-1)) for i in u])>(np.sum(p_k*k)*u)][-1] for T in T_array])
 
