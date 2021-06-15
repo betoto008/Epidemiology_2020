@@ -16,7 +16,7 @@ Text_files_path = '../../../../Dropbox/Research/Epidemiology_2020/Text_files/'
 colors_R = plt.cm.Paired(range(7))
 models = ['SIR', 'SEIR']
 gamma = 1/6
-ps=[1.0, 0.0]
+ps=[0.0]
 sigmas=[1000, 1/4]
 u = np.linspace(0.00005,0.9,100000)
 
@@ -71,7 +71,7 @@ for q, p in enumerate(ps):
                                 z0 = np.array([np.sum(k*p_k*(1-j+(j*i))**(k-1))/(np.sum(p_k*k)) for (i, j) in zip(u_sol_array, T_array)])
                                 x, y = np.meshgrid(R0_array, ns)
                                 x2, y2 = np.meshgrid(z0, ns)
-                                z = 1-(x2**(y))
+                                z = 1-(x2**(2*y))
 
                 cs = ax2.contourf(x, y/meanDegree, z, levels = np.linspace(0,1,20), cmap = plt.cm.jet)
                 cs2 = ax2.contour(cs, levels=[0.75], colors='k', linestyles = 'dashed', linewidths = 4)
@@ -82,21 +82,21 @@ for q, p in enumerate(ps):
 
                         #----Epidemic probability as a function of degree of patient zero---- 
                         if(sigma==1000):
+                                if(p==1.0):
+                                        prob_epi_n = 1-(1/R0)**ns
                                 if(p==0.0):
                                         R0 = Ts[r]/T_c
                                         u_sol = u_sols[r]
                                         prob_epi_n = 1-(np.sum(k*p_k*(1-Ts[r]+(Ts[r]*u_sol))**(k-1))/(np.sum(k*p_k)))**ns
-                                if(p==1.0):
-                                        prob_epi_n = 1-(1/R0)**ns
 
                         if(sigma==1/4):
-                                if(p==0.0):
-                                        R0 = Ts[r]/T_c
-                                        u_sol = u[np.array([np.sum(p_k*k*(1+(i-1)*Ts[r])**(k-1)) for i in u])>(np.sum(p_k*k)*u)][-1]
-                                        prob_epi_n = 1-(np.sum(k*p_k*(1-Ts[r]+(Ts[r]*u_sol))**(k-1))/(np.sum(k*p_k)))**(ns)
                                 if(p==1.0):
                                         R0 = np.sqrt(1-4*(((1/4)*gamma-sigmas[1]*beta)/((1/4)+gamma)**2))
                                         prob_epi_n = 1-(1/R0)**(2*ns)
+                                if(p==0.0):
+                                        R0 = Ts[r]/T_c
+                                        u_sol = u[np.array([np.sum(p_k*k*(1+(i-1)*Ts[r])**(k-1)) for i in u])>(np.sum(p_k*k)*u)][-1]
+                                        prob_epi_n = 1-(np.sum(k*p_k*(1-Ts[r]+(Ts[r]*u_sol))**(k-1))/(np.sum(k*p_k)))**(2*ns)
  
                         data = np.loadtxt('../../../../Dropbox/Research/Epidemiology_2020/Text_files/Stochastic/Networks/barabasi-albert/ensemble_I_R0%.1f_sigma%.1f_N%d_p%.1f_barabasi-albert.txt'%(beta/gamma, sigma, N, p))
                         max_values = np.array([np.max(data[i,:]) for i in np.arange(len(data[:,0]))])
@@ -107,7 +107,7 @@ for q, p in enumerate(ps):
                         hist_ext = numpy.histogram(max_values[data_ext], bins = np.arange(1,int(np.max(max_values))+2), density = True);
 
                         prob_epi_n_data = 1-(((1-np.cumsum(hist_ext[0]))*prob_ext)/(1-np.cumsum(hist[0])))
-                        ax.plot((hist_ext[1][:-1]+1)/meanDegree, prob_epi_n_data , '^', color = colors_R[r], ms = 12,  label = r'$R_0=$%.1f'%(R0))
+                        ax.plot((hist_ext[1][:-1])/meanDegree, prob_epi_n_data , '^', color = colors_R[r], ms = 12,  label = r'$R_0=$%.1f'%(R0))
                         ax.plot(ns/meanDegree, prob_epi_n,linewidth = 3, linestyle = '--', color = colors_R[r])
 
                         for j in np.array([int(i) for i in np.logspace(np.log10(2), np.log10(50), 8)-2]):
