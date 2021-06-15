@@ -49,7 +49,7 @@ for q, p in enumerate(ps):
                 fig, ax = plt.subplots(figsize = (10,8))
                 fig2, ax2 = plt.subplots(figsize = (10,8))
 
-                R0_array = np.linspace(1.01, 6, 20)
+                R0_array = np.linspace(1.01, 6, 80)
                 T_array = R0_array*T_c
                 u_sol_array = np.array([u[np.array([np.sum(p_k*k*(1+(i-1)*T)**(k-1)) for i in u])>(np.sum(p_k*k)*u)][-1] for T in T_array])
 
