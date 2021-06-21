@@ -6,9 +6,10 @@ from Epi_models import*
 from functions import *
 import networkx as nx
 import matplotlib.animation as animation
-import seaborn
+import seaborn as sns
 from matplotlib.lines import Line2D
 import matplotlib.ticker as ticker
+import pickle
 
 Text_files_path = '../../../../Dropbox/Research/Epidemiology_2020/Text_files/'
 
@@ -25,22 +26,22 @@ u = np.linspace(0.00005,0.9,100000)
 #----Load data network of contacts----
 N = 2000
 graphs_names = np.array(['barabasi-albert','watts-strogatz'])
-nodeDegrees = np.loadtxt('../../../../Dropbox/Research/Epidemiology_2020/Text_files/Stochastic/Networks/barabasi-albert/network_degree_distrib_N%d.txt'%(N), dtype=np.int32)
-meanDegree = np.mean(nodeDegrees)
-meanDegree2 = np.mean(nodeDegrees**2)
-degree_distrib = np.histogram(nodeDegrees, bins=range(1, max(nodeDegrees)+1), density = False)
-k = degree_distrib[1][:-1]
-p_k = degree_distrib[0]/len(nodeDegrees)
+infile_k = open(Text_files_path+'Stochastic/Networks/barabasi-albert/k.pck','rb')
+k = pickle.load(infile_k)
+infile_k.close()
+infile_p_k = open(Text_files_path+'Stochastic/Networks/barabasi-albert/p_k.pck','rb')
+p_k = pickle.load(infile_p_k)
+infile_p_k.close()
+
+meanDegree = np.sum(k*p_k)
+meanDegree2 = np.sum(k**2*p_k)
 T_c = meanDegree/(meanDegree2-meanDegree)
 
-k0s = np.arange(80)
+k0s = np.arange(120)
 
 for q, p in enumerate(ps):
         if(p==0.0):
                 R0s = np.array([4.5, 3.0, 2.0, 1.2, 0.8])
-                Ts = 1- ((meanDegree)/((meanDegree + R0s)))
-                #Ts = 1-np.array([np.sum(p_k*((k)/(k+(b/gamma)))) for b in R0s*gamma])
-                u_sols = np.array([u[np.array([np.sum(p_k*k*(1+(i-1)*T)**(k-1)) for i in u])>(np.sum(p_k*k)*u)][-1] for T in Ts])
         if(p==1.0):
                 R0s = np.array([4.5, 3.0, 2.0, 1.2])
         for s, sigma in enumerate(sigmas):
@@ -54,6 +55,8 @@ for q, p in enumerate(ps):
                 u_sol_array = np.array([u[np.array([np.sum(p_k*k*(1+(i-1)*T)**(k-1)) for i in u])>(np.sum(p_k*k)*u)][-1] for T in T_array])
 
                 if(sigma==1000):
+                        Ts = 1- ((meanDegree)/((meanDegree + R0s)))
+                        u_sols = np.array([u[np.array([np.sum(p_k*k*(1+(i-1)*T)**(k-1)) for i in u])>(np.sum(p_k*k)*u)][-1] for T in Ts])
                         if(p==1.0):
                                 x, y = np.meshgrid(R0_array, k0s)
                                 z = 1-(1/x) 
@@ -63,7 +66,8 @@ for q, p in enumerate(ps):
                                 z = 1-(1-(x*T_c)+((x*T_c)*x2))**y
 
                 if(sigma==1/4):
-
+                        Ts = 1- ((meanDegree)/((meanDegree + (R0s*gamma)*2*(sigma+gamma)**(-1))))
+                        u_sols = np.array([u[np.array([np.sum(p_k*k*(1+(i-1)*T)**(k-1)) for i in u])>(np.sum(p_k*k)*u)][-1] for T in Ts])
                         if(p==1.0):
                                 x, y = np.meshgrid(R0_array, k0s)
                                 z = 1-(1/x)**(2)
@@ -72,7 +76,7 @@ for q, p in enumerate(ps):
                                 x2, y2 = np.meshgrid(u_sol_array, k0s)
                                 z = 1-(1-(x*T_c)+((x*T_c)*x2))**y
 
-                cs = ax2.contourf(x, y/meanDegree, z, levels = np.linspace(0,1,20), cmap = plt.cm.jet)
+                cs = ax2.contourf(x, y/meanDegree, z, levels = np.linspace(0,1,50), cmap = plt.cm.jet)
                 cs2 = ax2.contour(cs, levels=[0.75], colors='k', linestyles = 'dashed', linewidths = 4)
 
                 for r, R0 in enumerate(R0s):
@@ -91,7 +95,7 @@ for q, p in enumerate(ps):
                         if(sigma==1/4):
                                 if(p==0.0):
                                         R0 = Ts[r]/T_c
-                                        u_sol = u[np.array([np.sum(p_k*k*(1+(i-1)*Ts[r])**(k-1)) for i in u])>(np.sum(p_k*k)*u)][-1]
+                                        u_sol = u_sols[r]
                                         prob_epi_k0 = 1-(1-Ts[r]+(Ts[r]*u_sol))**k0s
                                 if(p==1.0):
                                         R0 = np.sqrt(1-4*(((1/4)*gamma-sigmas[1]*beta)/((1/4)+gamma)**2))
@@ -101,7 +105,7 @@ for q, p in enumerate(ps):
                         #----Load data with simulation outcomes----
                         data_stats = np.loadtxt('../../../../Dropbox/Research/Epidemiology_2020/Text_files/Stochastic/Networks/barabasi-albert/stats_R0%.1f_sigma%.1f_N%d_p%.1f_barabasi-albert.txt'%(beta/gamma, sigma, N, p))
                         data_I = np.loadtxt('../../../../Dropbox/Research/Epidemiology_2020/Text_files/Stochastic/Networks/barabasi-albert/ensemble_I_R0%.1f_sigma%.1f_N%d_p%.1f_barabasi-albert.txt'%(beta/gamma, sigma, N, p))
-                        max_values = np.array([np.max(data_I[i,:]) for i in range(len(data_I[:,0]))])
+                        max_values = np.array([np.max(data_I[i,:]) for i in np.arange(len(data_I[:,0]))])
 
                         #data_ext = np.array([((data_I[i,-1]==0) & (max(data_I[i,:]) < 15)) for i in range(len(data_I[:,0]))])
                         data_ext = np.array([((data_I[i,-1]==0) and (max_values[i]<20)) for i in np.arange(len(data_I[:,0]))]) #selecting extinct trajectories
@@ -130,18 +134,18 @@ for q, p in enumerate(ps):
                         ax.plot(degrees/meanDegree, prob_epi_k0_data , '^', color = colors_R[r], ms = 12,  label = r'$R_0=$%.1f'%(R0))
                         ax.plot(k0s/meanDegree, prob_epi_k0,linewidth = 3, linestyle = '--', color = colors_R[r])
 
-                        for j in np.array([int(i) for i in np.logspace(np.log10(2), np.log10(60), 8)-2]):
-                                ax2.scatter(R0, (k0s[j]+2)/meanDegree, marker = 's', color = plt.cm.jet(np.linspace(0,1,20))[int(19*prob_epi_k0_data[j])], s = 200, edgecolors='k')
+                        for j in np.array([int(i) for i in np.logspace(0, np.log10(len(prob_epi_k0_data)-1), 10)]):
+                                ax2.scatter(R0, (degrees[j])/meanDegree, marker = 's', color = plt.cm.jet(np.linspace(0,1,50))[int(49*prob_epi_k0_data[j])], s = 200, edgecolors='k')
 
                 # Plot 1
-                ax.hlines(1,0,40)
-                my_plot_layout(ax = ax, xlabel = r'$k_0/\left\langle k \right\rangle$', ylabel = r'$P(\mathrm{epi}|k_0)$', yscale = 'linear')
+                ax.hlines(1,0,40/meanDegree, linestyle = '--', color = 'silver')
+                my_plot_layout(ax = ax, xlabel = r'$k_0/\left\langle k \right\rangle$', ylabel = r'$P(\mathrm{epi}|k_0)$', yscale = 'linear', xscale='log')
                 ax.set_xticks(np.array(np.arange(0,20,2)))
-                ax.set_xlim(0, 15/meanDegree)
+                ax.set_xlim(0, 40/meanDegree)
                 ax.set_ylim(-0.05, 1.05)
                 handles, labels = ax.get_legend_handles_labels()
                 ax.legend(np.concatenate(([],handles)), np.concatenate(([],labels)) , fontsize = 20, loc = 5, framealpha=.95)
-                fig.savefig('../Figures/Stochastic/Networks/barabasi-albert/Epi_prob_k0_'+model+'_p%.1f.pdf'%(p))
+                fig.savefig('../Figures/Stochastic/Networks/barabasi-albert/Epi_prob_k0_'+model+'_p%.1f.png'%(p))
 
                 # Plot 2
                 my_plot_layout(ax=ax2, xlabel=r'$R_0$', ylabel=r'$k_0/\left\langle k \right\rangle$', yscale='log')
@@ -159,7 +163,7 @@ for q, p in enumerate(ps):
                 cbar.set_ticklabels(np.linspace(0,1,5))
                 cbar.ax.tick_params(labelsize = 25)
                 cbar.add_lines(cs2)
-                fig2.savefig('../Figures/Stochastic/Networks/barabasi-albert/Epi_prob_k0_'+model+'_p%.1f_HM.pdf'%(p))
+                fig2.savefig('../Figures/Stochastic/Networks/barabasi-albert/Epi_prob_k0_'+model+'_p%.1f_HM.png'%(p))
                 
 
 

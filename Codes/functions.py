@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 import math
 import sys
 import random
-import seaborn
+import seaborn as sns
 from matplotlib.lines import Line2D
 
 from scipy.interpolate import interp1d
@@ -58,9 +58,9 @@ def prob_detection_stat(N, n, m):
 def prob_detection_acum(N, n, m):
 
 	prob_array = np.array([(1-(scipy.special.comb(N-n[0],m))/(scipy.special.comb(N,m)))])
-	for i in range(1,len(n)):
+	for i in np.arange(1,len(n)):
 		prob = (1-(scipy.special.comb(N-n[i],m))/(scipy.special.comb(N,m)))
-		for j in range(i):
+		for j in np.arange(i):
 			prob = prob*((scipy.special.comb(N-n[j],m))/(scipy.special.comb(N,m)))
 		prob_array =np.append(prob_array, prob)
 
@@ -69,10 +69,10 @@ def prob_detection_acum(N, n, m):
 def prob_detection_acum2(N, n, m):
 
 	prob_array = np.array([(1-(math.factorial(N-n[0])*math.factorial(N-m))/(math.factorial(N-n[0]-m)*math.factorial(N)))])
-	for i in range(1,len(n)):
-		prob = (1-(math.factorial(N-(m*int(min(i,4)))-n[i])*math.factorial(N-(m*int(min(i,4)))-m))/(math.factorial(N-(m*int(min(i,4)))-n[i]-m)*math.factorial(N-(m*int(min(i,4))))))
-		for j in range(i):
-			prob = prob*((math.factorial(N-(m*int(min(j,4)))-n[j])*math.factorial(N-(m*int(min(j,4)))-m))/(math.factorial(N-(m*int(min(j,4)))-n[j]-m)*math.factorial(N-(m*int(min(j,4))))))
+	for i in np.arange(1,len(n)):
+		prob = (1-(math.factorial(N-(m*int(np.min((i,4))))-n[i])*math.factorial(N-(m*int(np.min((i,4))))-m))/(math.factorial(N-(m*int(np.min((i,4))))-n[i]-m)*math.factorial(N-(m*int(np.min((i,4)))))))
+		for j in np.arange(i):
+			prob = prob*((math.factorial(N-(m*int(np.min((j,4))))-n[j])*math.factorial(N-(m*int(np.min((j,4))))-m))/(math.factorial(N-(m*int(np.min((j,4))))-n[j]-m)*math.factorial(N-(m*int(np.min((j,4)))))))
 		prob_array =np.append(prob_array, prob)
 
 	return prob_array
@@ -177,17 +177,17 @@ def plot_cum_prob_time(T_total, sample_sizes, R0, sigma, p, N, func_time, func_i
 	for m , c in zip(sample_sizes, colors):
 
 		func_prob = prob_detection_acum2(N,func_infec.astype(int), m)
-		func_prob2 = prob_detection_acum2(N,func_infec2.astype(int), m)
+		#func_prob2 = prob_detection_acum2(N,func_infec2.astype(int), m)
 
-		f = interp1d(func_time, np.cumsum(func_prob), 'cubic')
-		f2 = interp1d(func_time, np.cumsum(func_prob2), 'cubic')
+		#f = interp1d(func_time, np.cumsum(func_prob), 'cubic')
+		#f2 = interp1d(func_time, np.cumsum(func_prob2), 'cubic')
 		
-		np.savetxt(folder + '/prob_cum_detection_time_R0%.1f_sigma%.1f_N%.0f_p%.1f_m%d_'%(R0, sigma, N, p, m)+net_name+'.txt', (func_prob, func_prob2), fmt = '%.3f')
+		np.savetxt(folder + '/prob_cum_detection_time_R0%.1f_sigma%.1f_N%.0f_p%.1f_m%d_'%(R0, sigma, N, p, m)+net_name+'.txt', (func_prob, func_prob), fmt = '%.3f')
 
-		#ax.plot(func_time, np.cumsum(func_prob), '.', c = c, ms = 10, label = 'm = %d'%m)
-		ax.plot(time_x, f(time_x),'-', c = c, linewidth = 4, label = 'm = %d'%m)
-		ax.plot(time_x, f2(time_x),'-', c = c, linewidth = 4, alpha = 0.5)
-		ax.vlines(time_x[np.where(f(time_x)<=0.91)][-1], 0,0.9, linestyle = 'dashed', color = c, alpha = 0.5, label = '$t_{%d} = %.1f $days'%(m, time_x[np.where(f(time_x)<=0.91)][-1]), linewidth = 3)
+		ax.plot(func_time, np.cumsum(func_prob), linestyle = '-', linewidth = 3, color = c, ms = 10, label = 'm = %.1f %%'%(m*100/N))
+		#ax.plot(time_x, f(time_x),'-', c = c, linewidth = 3, label = 'm = %d'%m)
+		#ax.plot(time_x, f2(time_x),'-', c = c, linewidth = 4, alpha = 0.5)
+		#ax.vlines(time_x[np.where(f(time_x)<=0.91)][-1], 0,0.9, linestyle = 'dashed', color = c, alpha = 0.5, label = '$t_{%d} = %.1f $days'%(m, time_x[np.where(f(time_x)<=0.91)][-1]), linewidth = 3)
 
 	ax.hlines(1,0,func_time[-1], linestyle = 'dashed', linewidth = 3)
 	ax.hlines(.9,0,func_time[-1], linestyle = 'dashed', color = 'brown', label = '90%', linewidth = 3)
@@ -436,16 +436,11 @@ def run_network_ensemble(N, G, G_name, beta, sigma, gamma, T_total, intervals, n
 	counter = 0
 
 	if(stochastic):
-		#ext_nodes = np.array([])
-		#epi_nodes = np.array([])
-		#no_epi_nodes = np.array([])
+
 		#Open files for trajectories
 
 		file_E = open(folder+'/ensemble_E_R0%.1f_sigma%.1f_N%.0f_p%.1f_'%(beta/gamma, sigma, N, p)+G_name+'.txt', 'a')
 		file_I = open(folder+'/ensemble_I_R0%.1f_sigma%.1f_N%.0f_p%.1f_'%(beta/gamma, sigma, N, p)+G_name+'.txt', 'a')
-		#file_degree_epi = open(folder+'/degree_epi_R0%.1f_sigma%.1f_N%.0f_p%.1f_'%(beta/gamma, sigma, N, p)+G_name+'.txt', 'a')
-		#file_degree_ext = open(folder+'/degree_ext_R0%.1f_sigma%.1f_N%.0f_p%.1f_'%(beta/gamma, sigma, N, p)+G_name+'.txt', 'a')
-		#file_degree_no_epi = open(folder+'/degree_no_epi_R0%.1f_sigma%.1f_N%.0f_p%.1f_'%(beta/gamma, sigma, N, p)+G_name+'.txt', 'a')
 		file_stats = open(folder+'/stats_R0%.1f_sigma%.1f_N%.0f_p%.1f_'%(beta/gamma, sigma, N, p)+G_name+'.txt', 'a')
 
 	#Open file to save sammpling data
@@ -458,7 +453,7 @@ def run_network_ensemble(N, G, G_name, beta, sigma, gamma, T_total, intervals, n
 		#file_n3 = open(folder+'/detect_R0%.1f_sigma%.1f_N%.0f_p%.1f_m%d_'%(beta/gamma,sigma, N, p, 400)+G_name+'.txt', 'a')
 
 	#### Run ensemble of SEIR simulations
-	for i in range(n_ensemble):
+	for i in np.arange(n_ensemble):
 
 		G = nx.barabasi_albert_graph(N, 2)
 		nodeDegrees = np.array([d[1] for d in G.degree()])
@@ -537,9 +532,9 @@ def run_network_ensemble(N, G, G_name, beta, sigma, gamma, T_total, intervals, n
 				else:
 					extinction = 1
 
-			run_sampling_protocol(N, T_total, sample_sizes[0], model.tseries, model.Xseries, model.degree, epidemic, extinction, file_sampling1, posteriori = aposteriori, slope = slope)
-			run_sampling_protocol(N, T_total, sample_sizes[1], model.tseries, model.Xseries, model.degree, epidemic, extinction, file_sampling2, posteriori = aposteriori, slope = slope)
-			run_sampling_protocol(N, T_total, sample_sizes[2], model.tseries, model.Xseries, model.degree, epidemic, extinction, file_sampling3, posteriori = aposteriori, slope = slope)
+			run_sampling_protocol_2(N, T_total, sample_sizes[0], model.tseries, model.Xseries, model.degree, epidemic, extinction, file_sampling1, posteriori = aposteriori, slope = slope)
+			run_sampling_protocol_2(N, T_total, sample_sizes[1], model.tseries, model.Xseries, model.degree, epidemic, extinction, file_sampling2, posteriori = aposteriori, slope = slope)
+			run_sampling_protocol_2(N, T_total, sample_sizes[2], model.tseries, model.Xseries, model.degree, epidemic, extinction, file_sampling3, posteriori = aposteriori, slope = slope)
 
 	
 	if(stochastic):
@@ -620,11 +615,10 @@ def run_sampling(N, beta, sigma, gamma, T_total, p, m, I_series, folder, file_ti
 def run_sampling_protocol(N, T_total, m, tseries, Xseries, degree, epidemic, extinction, file_sampling, posteriori = False, slope = None):
 
 	degree = degree.reshape(1,N)[0]
-	nodes = np.array(range(N))
+	nodes = np.arange(N)
 	meanDegree = np.mean(degree)
-	days = np.array(range(T_total+1))
+	days = np.arange(T_total+1)
 	sampling_array = nodes
-
 	#### Samping protocol
 	time_first_detec = 1000
 	#total_n_detect = 0
@@ -646,13 +640,13 @@ def run_sampling_protocol(N, T_total, m, tseries, Xseries, degree, epidemic, ext
 			infected_nodes = np.where(Xseries[j,:]==3)[0]
 			if(posteriori):
 				#p_degree = np.array([max(1,(-1.3 + 1.9*np.log10(degree[int(i)]))) for i in sampling_array])
-				p_degree = np.array([10**(slope*np.log10(degree[int(i)])) for i in sampling_array])
-				p_degree = p_degree/sum(p_degree)
+				p_degree = np.array([slope[int(degree[int(i)])] for i in sampling_array])
+				p_degree = p_degree/np.sum(p_degree)
 				sample = np.random.choice(a = sampling_array, size = m, replace = False, p = p_degree)
 			else:
 				sample = np.random.choice(a = sampling_array, size = m, replace = False)
 			#sample = np.array(random.sample(list(sampling_array), m))
-			n_detect_t = sum(np.isin(sample, infected_nodes))
+			n_detect_t = np.sum(np.isin(sample, infected_nodes))
 			if(n_detect_t):
 				if not(first_detec):
 					time_first_detec = t
@@ -665,6 +659,58 @@ def run_sampling_protocol(N, T_total, m, tseries, Xseries, degree, epidemic, ext
 	#total_n_detect = np.append(total_n_detect,n_detect)
 
 	np.savetxt(file_sampling, np.array([time_first_detec, first_n_detec, n_detect, epidemic, extinction]), fmt = '%d', delimiter = ' ', newline = ' ')
+	file_sampling.write("\n")
+	#np.savetxt(file_n, total_n_detect, fmt = '%d')
+
+def run_sampling_protocol_2(N, T_total, m, tseries, Xseries, degree, epidemic, extinction, file_sampling, posteriori = False, slope = None):
+
+	degree = degree.reshape(1,N)[0]
+	nodes = np.arange(N)
+	meanDegree = np.mean(degree)
+	days = np.arange(T_total+1)
+	sampling_array = nodes
+	#### Samping protocol
+	time_first_detec = 1000
+	#total_n_detect = 0
+	first_n_detec = 0
+	sampled_nodes = np.array([])
+	first_detec = False
+	n_detect = 0
+	j = 0
+	cluster_size = 0
+	for t in days:
+		if(t<tseries[-1]):
+			#Replace after 4 days the first m sampled nodes
+			if(t>4):
+				sampling_array = np.concatenate((sampling_array,sampled_nodes[:m]))
+				sampling_array = np.sort(sampling_array)
+				sampled_nodes = sampled_nodes[m:]
+
+			while(tseries[j]<=t):
+				j+=1
+			infected_nodes = np.where(Xseries[j,:]==3)[0]
+			if(posteriori):
+				#p_degree = np.array([max(1,(-1.3 + 1.9*np.log10(degree[int(i)]))) for i in sampling_array])
+				p_degree = np.array([slope[int(degree[int(i)])] for i in sampling_array])
+				p_degree = p_degree/np.sum(p_degree)
+				sample = np.random.choice(a = sampling_array, size = m, replace = False, p = p_degree)
+			else:
+				sample = np.random.choice(a = sampling_array, size = m, replace = False)
+			#sample = np.array(random.sample(list(sampling_array), m))
+			n_detect_t = np.sum(np.isin(sample, infected_nodes))
+			if(n_detect_t):
+				if not(first_detec):
+					time_first_detec = t
+					first_n_detec = n_detect_t
+					cluster_size = len(infected_nodes)
+					first_detec = True
+			n_detect += n_detect_t
+			temp1 = np.isin(sampling_array, sample)
+			sampling_array = sampling_array[~temp1]
+			sampled_nodes = np.concatenate((sampled_nodes, sample))
+	#total_n_detect = np.append(total_n_detect,n_detect)
+
+	np.savetxt(file_sampling, np.array([time_first_detec, first_n_detec, n_detect, epidemic, extinction, cluster_size]), fmt = '%d', delimiter = ' ', newline = ' ')
 	file_sampling.write("\n")
 	#np.savetxt(file_n, total_n_detect, fmt = '%d')
 

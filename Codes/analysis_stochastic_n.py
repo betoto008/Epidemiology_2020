@@ -6,18 +6,19 @@ from Epi_models import*
 from functions import *
 import networkx as nx
 import matplotlib.animation as animation
-import seaborn
+import seaborn as sns
 from matplotlib.lines import Line2D
 import matplotlib.ticker as ticker
+import pickle
 
 Text_files_path = '../../../../Dropbox/Research/Epidemiology_2020/Text_files/'
 
 
 colors_R = plt.cm.Paired(range(7))
-models = ['SIR', 'SEIR']
+models = ['SEIR', 'SIR']
 gamma = 1/6
-ps=[1.0, 0.0]
-sigmas=[1000, 1/4]
+ps=[0.0]
+sigmas=[1/4, 1000]
 u = np.linspace(0.00005,0.9,100000)
 
 
@@ -25,12 +26,15 @@ u = np.linspace(0.00005,0.9,100000)
 #----Load data network of contacts----
 N = 2000
 graphs_names = np.array(['barabasi-albert','watts-strogatz'])
-nodeDegrees = np.loadtxt('../../../../Dropbox/Research/Epidemiology_2020/Text_files/Stochastic/Networks/barabasi-albert/network_degree_distrib_N%d.txt'%(N), dtype=np.int32)
-meanDegree = np.mean(nodeDegrees)
-meanDegree2 = np.mean(nodeDegrees**2)
-degree_distrib = np.histogram(nodeDegrees, bins=np.arange(1, np.max(nodeDegrees)+1), density = False)
-k = degree_distrib[1][:-1]
-p_k = degree_distrib[0]/len(nodeDegrees)
+infile_k = open(Text_files_path+'Stochastic/Networks/barabasi-albert/k.pck','rb')
+k = pickle.load(infile_k)
+infile_k.close()
+infile_p_k = open(Text_files_path+'Stochastic/Networks/barabasi-albert/p_k.pck','rb')
+p_k = pickle.load(infile_p_k)
+infile_p_k.close()
+
+meanDegree = np.sum(k*p_k)
+meanDegree2 = np.sum(k**2*p_k)
 T_c = meanDegree/(meanDegree2-meanDegree)
 
 ns = np.arange(120)
@@ -38,8 +42,6 @@ ns = np.arange(120)
 for q, p in enumerate(ps):
         if(p==0.0):
                 R0s = np.array([4.5, 3.0, 2.0, 1.2, 0.8])
-                Ts = 1- ((meanDegree)/((meanDegree + R0s)))
-                u_sols = np.array([u[np.array([np.sum(p_k*k*(1+(i-1)*T)**(k-1)) for i in u])>(np.sum(p_k*k)*u)][-1] for T in Ts])
         if(p==1.0):
                 R0s = np.array([4.5, 3.0, 2.0, 1.2])
         for s, sigma in enumerate(sigmas):
@@ -53,6 +55,8 @@ for q, p in enumerate(ps):
                 u_sol_array = np.array([u[np.array([np.sum(p_k*k*(1+(i-1)*T)**(k-1)) for i in u])>(np.sum(p_k*k)*u)][-1] for T in T_array])
 
                 if(sigma==1000):
+                        Ts = 1- ((meanDegree)/((meanDegree + R0s)))
+                        u_sols = np.array([u[np.array([np.sum(p_k*k*(1+(i-1)*T)**(k-1)) for i in u])>(np.sum(p_k*k)*u)][-1] for T in Ts])
                         if(p==1.0):
                                 x, y = np.meshgrid(R0_array, ns)
                                 z = 1-(1/x)**(y) 
@@ -63,7 +67,8 @@ for q, p in enumerate(ps):
                                 z = 1-(x2**(y))
 
                 if(sigma==1/4):
-
+                        Ts = 1- ((meanDegree)/((meanDegree + (R0s*gamma)*2*(sigma+gamma)**(-1))))
+                        u_sols = np.array([u[np.array([np.sum(p_k*k*(1+(i-1)*T)**(k-1)) for i in u])>(np.sum(p_k*k)*u)][-1] for T in Ts])
                         if(p==1.0):
                                 x, y = np.meshgrid(R0_array, ns)
                                 z = 1-(1/x)**(2*y)
@@ -89,17 +94,17 @@ for q, p in enumerate(ps):
                                         R0 = Ts[r]/T_c
                                         u_sol = u_sols[r]
                                         prob_epi_n = 1-(np.sum(k*p_k*(1-Ts[r]+(Ts[r]*u_sol))**(k-1))/(np.sum(k*p_k)))**ns
-                                        prob_epi_n2 = 1-(np.sum(p_k*(1-Ts[r]+(Ts[r]*u_sol))**(k)))**ns
+                                        #prob_epi_n2 = 1-(np.sum(p_k*(1-Ts[r]+(Ts[r]*u_sol))**(k)))**ns
                         if(sigma==1/4):
                                 if(p==1.0):
-                                        R0 = np.sqrt(1-4*(((1/4)*gamma-sigmas[1]*beta)/((1/4)+gamma)**2))
+                                        R0 = np.sqrt(1-4*(((1/4)*gamma-sigma*beta)/((1/4)+gamma)**2))
                                         prob_epi_n = 1-(1/R0)**(2*ns)
                                         prob_epi_n2 = 1-(1/R0)**(2*ns)
                                 if(p==0.0):
                                         R0 = Ts[r]/T_c
                                         u_sol = u_sols[r]
                                         prob_epi_n = 1-(np.sum(k*p_k*(1-Ts[r]+(Ts[r]*u_sol))**(k-1))/(np.sum(k*p_k)))**(2*ns)
-                                        prob_epi_n2 = 1-(np.sum(p_k*(1-Ts[r]+(Ts[r]*u_sol))**(k)))**(2*ns)
+                                        #prob_epi_n2 = 1-(np.sum(p_k*(1-Ts[r]+(Ts[r]*u_sol))**(k)))**(2*ns)
 
                         data = np.loadtxt('../../../../Dropbox/Research/Epidemiology_2020/Text_files/Stochastic/Networks/barabasi-albert/ensemble_I_R0%.1f_sigma%.1f_N%d_p%.1f_barabasi-albert.txt'%(beta/gamma, sigma, N, p))
                         max_values = np.array([np.max(data[i,:]) for i in np.arange(len(data[:,0]))])
@@ -113,14 +118,14 @@ for q, p in enumerate(ps):
                         b = np.cumsum(hist[0]*hist[1][:-1])[-1]
                         prob_epi_n_data = 1-(((1-np.cumsum(hist_ext[0][:-1]*hist_ext[1][:-2])/a)*prob_ext)/(1-np.cumsum(hist[0][:-1]*hist[1][:-2])/b))
                         ax.plot((hist_ext[1][:-2]+1)/meanDegree, prob_epi_n_data , '^', color = colors_R[r], ms = 12,  label = r'$R_0=$%.1f'%(R0))
-                        ax.plot(ns/meanDegree, prob_epi_n, linewidth = 3, linestyle = '--', color = colors_R[r])
-                        ax.plot(ns/meanDegree, prob_epi_n2, linewidth = 3, linestyle = '-', color = colors_R[r])
+                        ax.plot(ns/meanDegree, prob_epi_n, linewidth = 2, linestyle = '-', color = colors_R[r])
+                        #ax.plot(ns/meanDegree, prob_epi_n2, linewidth = 2, linestyle = '--', color = colors_R[r])
 
                         for j in np.arange(len(prob_epi_n_data)):
                                 ax2.scatter(R0, (hist_ext[1][:-2][j]+1)/meanDegree, marker = 's', color = plt.cm.jet(np.linspace(0,1,50))[int(49*prob_epi_n_data[j])], s = 200, edgecolors='k')
 
                 # Plot 1
-                ax.hlines(1,0,40)
+                ax.hlines(1,0,80/meanDegree, linestyle = '--', color = 'silver')
                 ax.set_xticks(np.array(np.arange(0,20,2)))
                 ax.set_xlim(1/meanDegree, 80/meanDegree)
                 ax.set_ylim(-0.05, 1.05)
@@ -143,6 +148,7 @@ for q, p in enumerate(ps):
                 cbar.add_lines(cs2)
 
                 fig2.savefig('../Figures/Stochastic/Networks/barabasi-albert/Epi_prob_n_'+model+'_p%.1f_HM.png'%(p))
+                
                 plt.close()
 
 
