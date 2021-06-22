@@ -76,8 +76,8 @@ for q, p in enumerate(ps):
                                 x2, y2 = np.meshgrid(u_sol_array, k0s)
                                 z = 1-(1-(x*T_c)+((x*T_c)*x2))**y
 
-                cs = ax2.contourf(x, y/meanDegree, z, levels = np.linspace(0,1,50), cmap = plt.cm.jet)
-                cs2 = ax2.contour(cs, levels=[0.75], colors='k', linestyles = 'dashed', linewidths = 4)
+                cs = ax2.contourf(x, y/meanDegree, z, levels = np.linspace(0,1,80), cmap = plt.cm.jet)
+                cs2 = ax2.contour(cs, levels=[0.5], colors='k', linestyles = 'dashed', linewidths = 4)
 
                 for r, R0 in enumerate(R0s):
 
@@ -134,14 +134,14 @@ for q, p in enumerate(ps):
                         ax.plot(degrees/meanDegree, prob_epi_k0_data , '^', color = colors_R[r], ms = 12,  label = r'$R_0=$%.1f'%(R0))
                         ax.plot(k0s/meanDegree, prob_epi_k0,linewidth = 3, linestyle = '--', color = colors_R[r])
 
-                        for j in np.array([int(i) for i in np.logspace(0, np.log10(len(prob_epi_k0_data)-1), 10)]):
-                                ax2.scatter(R0, (degrees[j])/meanDegree, marker = 's', color = plt.cm.jet(np.linspace(0,1,50))[int(49*prob_epi_k0_data[j])], s = 200, edgecolors='k')
+                        for j in np.array([int(i) for i in np.logspace(0, np.log10(len(prob_epi_k0_data)-1), 8)]):
+                                ax2.scatter(R0, (degrees[j])/meanDegree, marker = 's', color = plt.cm.jet(np.linspace(0,1,80))[int(79*prob_epi_k0_data[j])], s = 200, edgecolors='k')
 
                 # Plot 1
                 ax.hlines(1,0,40/meanDegree, linestyle = '--', color = 'silver')
                 my_plot_layout(ax = ax, xlabel = r'$k_0/\left\langle k \right\rangle$', ylabel = r'$P(\mathrm{epi}|k_0)$', yscale = 'linear', xscale='log')
                 ax.set_xticks(np.array(np.arange(0,20,2)))
-                ax.set_xlim(0, 40/meanDegree)
+                ax.set_xlim(1, 40/meanDegree)
                 ax.set_ylim(-0.05, 1.05)
                 handles, labels = ax.get_legend_handles_labels()
                 ax.legend(np.concatenate(([],handles)), np.concatenate(([],labels)) , fontsize = 20, loc = 5, framealpha=.95)
@@ -156,7 +156,7 @@ for q, p in enumerate(ps):
                                 ax2.set_xlim(1.02, 2.3)
                 if(p==0.0):
                         ax2.set_xlim(1.02, 4)
-                ax2.set_ylim(1.9/meanDegree, 59/meanDegree)
+                ax2.set_ylim(1.9/meanDegree, 90/meanDegree)
                 cbar = fig2.colorbar(cs, ticks=np.linspace(0,1,5))
                 #cbar.set_ticks(np.arange(5))
                 cbar.set_label('Probability of epidemic', fontsize = 25)

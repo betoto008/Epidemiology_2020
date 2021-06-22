@@ -18,10 +18,8 @@ colors_R = plt.cm.Paired(range(7))
 models = ['SEIR', 'SIR']
 gamma = 1/6
 ps=[0.0]
-sigmas=[1/4, 1000]
+sigmas=[1/4]
 u = np.linspace(0.00005,0.9,100000)
-
-
 
 #----Load data network of contacts----
 N = 2000
@@ -37,7 +35,7 @@ meanDegree = np.sum(k*p_k)
 meanDegree2 = np.sum(k**2*p_k)
 T_c = meanDegree/(meanDegree2-meanDegree)
 
-ns = np.arange(120)
+ns = np.arange(80)
 
 for q, p in enumerate(ps):
         if(p==0.0):
@@ -78,8 +76,8 @@ for q, p in enumerate(ps):
                                 x2, y2 = np.meshgrid(z0, ns)
                                 z = 1-(x2**(2*y))
 
-                cs = ax2.contourf(x, y/meanDegree, z, levels = np.linspace(0,1,50), cmap = plt.cm.jet)
-                cs2 = ax2.contour(cs, levels=[0.75], colors='k', linestyles = 'dashed', linewidths = 4)
+                cs = ax2.contourf(x, y/meanDegree, z, levels = np.linspace(0,1,80), cmap = plt.cm.jet)
+                cs2 = ax2.contour(cs, levels=[0.5], colors='k', linestyles = 'dashed', linewidths = 4)
 
                 for r, R0 in enumerate(R0s):
 
@@ -94,7 +92,7 @@ for q, p in enumerate(ps):
                                         R0 = Ts[r]/T_c
                                         u_sol = u_sols[r]
                                         prob_epi_n = 1-(np.sum(k*p_k*(1-Ts[r]+(Ts[r]*u_sol))**(k-1))/(np.sum(k*p_k)))**ns
-                                        #prob_epi_n2 = 1-(np.sum(p_k*(1-Ts[r]+(Ts[r]*u_sol))**(k)))**ns
+                                        prob_epi_n2 = 1-(np.sum(p_k*(1-Ts[r]+(Ts[r]*u_sol))**(k)))**ns
                         if(sigma==1/4):
                                 if(p==1.0):
                                         R0 = np.sqrt(1-4*(((1/4)*gamma-sigma*beta)/((1/4)+gamma)**2))
@@ -104,7 +102,7 @@ for q, p in enumerate(ps):
                                         R0 = Ts[r]/T_c
                                         u_sol = u_sols[r]
                                         prob_epi_n = 1-(np.sum(k*p_k*(1-Ts[r]+(Ts[r]*u_sol))**(k-1))/(np.sum(k*p_k)))**(2*ns)
-                                        #prob_epi_n2 = 1-(np.sum(p_k*(1-Ts[r]+(Ts[r]*u_sol))**(k)))**(2*ns)
+                                        prob_epi_n2 = 1-(np.sum(p_k*(1-Ts[r]+(Ts[r]*u_sol))**(k)))**(2*ns)
 
                         data = np.loadtxt('../../../../Dropbox/Research/Epidemiology_2020/Text_files/Stochastic/Networks/barabasi-albert/ensemble_I_R0%.1f_sigma%.1f_N%d_p%.1f_barabasi-albert.txt'%(beta/gamma, sigma, N, p))
                         max_values = np.array([np.max(data[i,:]) for i in np.arange(len(data[:,0]))])
@@ -118,11 +116,11 @@ for q, p in enumerate(ps):
                         b = np.cumsum(hist[0]*hist[1][:-1])[-1]
                         prob_epi_n_data = 1-(((1-np.cumsum(hist_ext[0][:-1]*hist_ext[1][:-2])/a)*prob_ext)/(1-np.cumsum(hist[0][:-1]*hist[1][:-2])/b))
                         ax.plot((hist_ext[1][:-2]+1)/meanDegree, prob_epi_n_data , '^', color = colors_R[r], ms = 12,  label = r'$R_0=$%.1f'%(R0))
-                        ax.plot(ns/meanDegree, prob_epi_n, linewidth = 2, linestyle = '-', color = colors_R[r])
-                        #ax.plot(ns/meanDegree, prob_epi_n2, linewidth = 2, linestyle = '--', color = colors_R[r])
+                        ax.plot(ns, prob_epi_n, linewidth = 2, linestyle = '-', color = colors_R[r])
+                        #ax.plot(ns/meanDegree, prob_epi_n2, linewidth = 4, linestyle = '--', color = colors_R[r])
 
                         for j in np.arange(len(prob_epi_n_data)):
-                                ax2.scatter(R0, (hist_ext[1][:-2][j]+1)/meanDegree, marker = 's', color = plt.cm.jet(np.linspace(0,1,50))[int(49*prob_epi_n_data[j])], s = 200, edgecolors='k')
+                                ax2.scatter(R0, (hist_ext[1][:-2][j]+1)/meanDegree, marker = 's', color = plt.cm.jet(np.linspace(0,1,80))[int(79*prob_epi_n_data[j])], s = 200, edgecolors='k')
 
                 # Plot 1
                 ax.hlines(1,0,80/meanDegree, linestyle = '--', color = 'silver')
