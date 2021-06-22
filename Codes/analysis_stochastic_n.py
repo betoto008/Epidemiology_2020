@@ -17,8 +17,8 @@ Text_files_path = '../../../../Dropbox/Research/Epidemiology_2020/Text_files/'
 colors_R = plt.cm.Paired(range(7))
 models = ['SEIR', 'SIR']
 gamma = 1/6
-ps=[0.0]
-sigmas=[1/4]
+ps=[1.0]
+sigmas=[1/4, 1000]
 u = np.linspace(0.00005,0.9,100000)
 
 #----Load data network of contacts----
@@ -35,7 +35,7 @@ meanDegree = np.sum(k*p_k)
 meanDegree2 = np.sum(k**2*p_k)
 T_c = meanDegree/(meanDegree2-meanDegree)
 
-ns = np.arange(80)
+ns = np.arange(1, 24, 2)
 
 for q, p in enumerate(ps):
         if(p==0.0):
@@ -48,7 +48,7 @@ for q, p in enumerate(ps):
                 fig, ax = plt.subplots(figsize = (10,8))
                 fig2, ax2 = plt.subplots(figsize = (10,8))
 
-                R0_array = np.linspace(1.01, 6, 80)
+                R0_array = np.linspace(0.8, 3.0, 30)
                 T_array = R0_array*T_c
                 u_sol_array = np.array([u[np.array([np.sum(p_k*k*(1+(i-1)*T)**(k-1)) for i in u])>(np.sum(p_k*k)*u)][-1] for T in T_array])
 
@@ -59,7 +59,7 @@ for q, p in enumerate(ps):
                                 x, y = np.meshgrid(R0_array, ns)
                                 z = 1-(1/x)**(y) 
                         if(p==0.0):
-                                z0 = np.array([np.sum(k*p_k*(1-j+(j*i))**(k-1))/(np.sum(p_k*k)) for (i, j) in zip(u_sol_array, T_array)])
+                                z0 = np.array([np.sum(k*p_k*(1-j+(j*i))**(k-2))/(np.sum(p_k*k)) for (i, j) in zip(u_sol_array, T_array)])
                                 x, y = np.meshgrid(R0_array, ns)
                                 x2, y2 = np.meshgrid(z0, ns)
                                 z = 1-(x2**(y))
@@ -71,7 +71,7 @@ for q, p in enumerate(ps):
                                 x, y = np.meshgrid(R0_array, ns)
                                 z = 1-(1/x)**(2*y)
                         if(p==0.0):
-                                z0 = np.array([np.sum(k*p_k*(1-j+(j*i))**(k-1))/(np.sum(p_k*k)) for (i, j) in zip(u_sol_array, T_array)])
+                                z0 = np.array([np.sum(k*p_k*(1-j+(j*i))**(k-2))/(np.sum(p_k*k)) for (i, j) in zip(u_sol_array, T_array)])
                                 x, y = np.meshgrid(R0_array, ns)
                                 x2, y2 = np.meshgrid(z0, ns)
                                 z = 1-(x2**(2*y))
@@ -104,18 +104,22 @@ for q, p in enumerate(ps):
                                         prob_epi_n = 1-(np.sum(k*p_k*(1-Ts[r]+(Ts[r]*u_sol))**(k-1))/(np.sum(k*p_k)))**(2*ns)
                                         prob_epi_n2 = 1-(np.sum(p_k*(1-Ts[r]+(Ts[r]*u_sol))**(k)))**(2*ns)
 
-                        data = np.loadtxt('../../../../Dropbox/Research/Epidemiology_2020/Text_files/Stochastic/Networks/barabasi-albert/ensemble_I_R0%.1f_sigma%.1f_N%d_p%.1f_barabasi-albert.txt'%(beta/gamma, sigma, N, p))
-                        max_values = np.array([np.max(data[i,:]) for i in np.arange(len(data[:,0]))])
-                        data_ext = np.array([((data[i,-1]==0) & (max_values[i] < 20)) for i in np.arange(len(data[:,0]))]) #selecting extinct trajectories
-                        #data_ext = np.array([((data[i,-1]==0)) for i in np.arange(len(data[:,0]))]) #selecting extinct trajectories
-                        n_ext = len(data[:,0][data_ext])
-                        prob_ext = n_ext/len(data[:,0])
-                        hist = np.histogram(max_values, bins = np.logspace(0,np.log10(int(np.max(max_values)+1)), 15), density = False);
-                        hist_ext = np.histogram(max_values[data_ext], bins = np.logspace(0,np.log10(int(np.max(max_values)+1)), 15), density = False);
-                        a = np.cumsum(hist_ext[0]*hist_ext[1][:-1])[-1]
-                        b = np.cumsum(hist[0]*hist[1][:-1])[-1]
-                        prob_epi_n_data = 1-(((1-np.cumsum(hist_ext[0][:-1]*hist_ext[1][:-2])/a)*prob_ext)/(1-np.cumsum(hist[0][:-1]*hist[1][:-2])/b))
-                        ax.plot((hist_ext[1][:-2]+1)/meanDegree, prob_epi_n_data , '^', color = colors_R[r], ms = 12,  label = r'$R_0=$%.1f'%(R0))
+                        data_nodes = np.loadtxt('../../../../Dropbox/Research/Epidemiology_2020/Text_files/Stochastic/Networks/barabasi-albert/stats_R0%.1f_sigma%.1f_N%d_p%.1f_barabasi-albert.txt'%(beta/gamma, sigma, N, p))
+                        data_I = np.loadtxt('../../../../Dropbox/Research/Epidemiology_2020/Text_files/Stochastic/Networks/barabasi-albert/ensemble_I_R0%.1f_sigma%.1f_N%d_p%.1f_barabasi-albert.txt'%(beta/gamma, sigma, N, p))
+                        data_E = np.loadtxt('../../../../Dropbox/Research/Epidemiology_2020/Text_files/Stochastic/Networks/barabasi-albert/ensemble_E_R0%.1f_sigma%.1f_N%d_p%.1f_barabasi-albert.txt'%(beta/gamma, sigma, N, p))
+                        nodes_ext , nodes_epi, I_ext, I_succ, max_values, data_ext = sort_nodes(p=p, beta=beta, sigma=sigma, gamma=gamma, data_I = data_I, data_E = data_E, data_nodes = data_nodes[:,0], upper_limit = 80)
+
+                        n_ext = len(nodes_ext)
+                        n_total = len(nodes_ext) + len(nodes_epi)
+                        prob_ext = n_ext/n_total
+                        hist = np.histogram(max_values, bins = np.arange(1, 40, 2), density = False);
+                        hist_ext = np.histogram(max_values[data_ext], bins = np.arange(1, 40, 2), density = False);
+                        print(n_total, np.cumsum(hist[0])[-1], n_ext, np.cumsum(hist_ext[0])[-1])
+                        #a = np.cumsum(hist_ext[0]*(hist_ext[1][1:]-hist_ext[1][:-1]))[-1]
+                        #b = np.cumsum(hist[0]*(hist[1][1:]-hist[1][:-1]))[-1]
+                        #prob_epi_n_data = 1-(((1-np.cumsum(hist_ext[0][:-1]*(hist_ext[1][1:-1]-hist_ext[1][:-2]))/a)*prob_ext)/(1-np.cumsum(hist[0][:-1]*(hist[1][1:-1]-hist[1][:-2]))/b))
+                        prob_epi_n_data = 1-(((1-np.cumsum(hist_ext[0][:-1])/n_ext)*prob_ext)/(1-np.cumsum(hist[0][:-1])/n_total))
+                        ax.plot((hist_ext[1][:-2]+1), prob_epi_n_data , '^', color = colors_R[r], ms = 12,  label = r'$R_0=$%.1f'%(R0))
                         ax.plot(ns, prob_epi_n, linewidth = 2, linestyle = '-', color = colors_R[r])
                         #ax.plot(ns/meanDegree, prob_epi_n2, linewidth = 4, linestyle = '--', color = colors_R[r])
 
@@ -123,11 +127,11 @@ for q, p in enumerate(ps):
                                 ax2.scatter(R0, (hist_ext[1][:-2][j]+1)/meanDegree, marker = 's', color = plt.cm.jet(np.linspace(0,1,80))[int(79*prob_epi_n_data[j])], s = 200, edgecolors='k')
 
                 # Plot 1
-                ax.hlines(1,0,80/meanDegree, linestyle = '--', color = 'silver')
+                ax.hlines(1,0,41, linestyle = '--', color = 'silver')
                 ax.set_xticks(np.array(np.arange(0,20,2)))
-                ax.set_xlim(1/meanDegree, 80/meanDegree)
+                ax.set_xlim(0.5, 16)
                 ax.set_ylim(-0.05, 1.05)
-                my_plot_layout(ax = ax, xlabel = r'$n/\left\langle k \right\rangle$', ylabel = r'$P(\mathrm{epi}|n_{\mathrm{max}}\geq n)$', yscale = 'linear', xscale = 'log')
+                my_plot_layout(ax = ax, xlabel = r'$n/\left\langle k \right\rangle$', ylabel = r'$P(\mathrm{epi}|n_{\mathrm{max}}\geq n)$', yscale = 'linear', xscale = 'linear')
                 handles, labels = ax.get_legend_handles_labels()
                 ax.legend(np.concatenate(([],handles)), np.concatenate(([],labels)) , fontsize = 20, loc = 5, framealpha=.95)
                 fig.savefig('../Figures/Stochastic/Networks/barabasi-albert/Epi_prob_n_'+model+'_p%.1f.png'%(p))
@@ -137,8 +141,8 @@ for q, p in enumerate(ps):
                 if(p==1.0):
                         ax2.set_xlim(1.02, 2.3)
                 if(p==0.0):
-                        ax2.set_xlim(1.02, 4)
-                ax2.set_ylim(1.9/meanDegree, 24/meanDegree)
+                        ax2.set_xlim(1.05, 2.5)
+                ax2.set_ylim(1.9/meanDegree, 12/meanDegree)
                 cbar = fig2.colorbar(cs, ticks=np.linspace(0,1,5))
                 cbar.ax.set_ylabel('Probability of epidemic', fontsize = 25)
                 cbar.set_ticklabels(np.linspace(0,1,5))

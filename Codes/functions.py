@@ -77,17 +77,23 @@ def prob_detection_acum2(N, n, m):
 
 	return prob_array
 
-def sort_nodes(p, beta, sigma, gamma, data_I, data_nodes):
+def sort_nodes(p, beta, sigma, gamma, data_I, data_E, data_nodes, upper_limit):
 
 	max_values = np.array([np.max(data_I[i,:]) for i in np.arange(len(data_I[:,0]))])
-	data_ext = np.array([((data_I[i,-1]==0) & (max(data_I[i,:]) < 20)) for i in range(len(data_I[:,0]))])
+	data_I = data_I[max_values!=0,:]
+	data_E = data_E[max_values!=0,:]
+	data_nodes = data_nodes[max_values!=0]
+	max_values = max_values[max_values!=0]
+	#data_ext = np.array([((data_I[i,-1]==0) & (np.max(data_I[i,:]) < 20)) for i in np.arange(len(data_I[:,0]))])
+	data_ext = np.array([(((data_I[i,-1]==0) and (data_E[i,-1]==0)) and (np.max(data_I[i,:]) < upper_limit)) for i in np.arange(len(data_I[:,0]))])
+
 
 	nodes_ext = data_nodes[data_ext]
 	nodes_succ = data_nodes[~data_ext]
 	I_ext = data_I[data_ext]
 	I_succ = data_I[~data_ext]
 
-	return nodes_ext, nodes_succ, I_ext, I_succ, max_values
+	return nodes_ext, nodes_succ, I_ext, I_succ, max_values, data_ext
 
 
 #----------------- Plots -----------------
