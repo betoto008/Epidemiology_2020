@@ -85,15 +85,17 @@ for s, sigma in enumerate(sigmas):
 			ax.hlines([0, .9, 1],0, T_total, linestyle = 'dashed', color = 'silver', linewidth = 3)
 			#ax2.hlines([0, .9, 1],0,T_total, linestyle = 'dashed', color = 'silver', linewidth = 3)
 			for m, color, color_m in zip(sample_sizes, colors, colors_m):
-				data_sampling_uniform = np.loadtxt(Text_files_path+'Sampling/Networks/barabasi-albert/uniform/sampling_stats_R0%.1f_sigma%.1f_N%d_p%.1f_m%d_barabasi-albert.txt'%(beta/gamma,sigma,N,p,m))
-				data_sampling_uniform2 = np.loadtxt(Text_files_path+'Sampling/Networks/barabasi-albert/uniform/prueba_CS/sampling_stats_R0%.1f_sigma%.1f_N%d_p%.1f_m%d_barabasi-albert.txt'%(beta/gamma,sigma,N,p,m))
-				data_sampling_uniform_times = np.concatenate((data_sampling_uniform[data_sampling_uniform[:,0]!=1000,0],data_sampling_uniform2[data_sampling_uniform2[:,0]!=1000,0]))
-				data_sampling_uniform_cs = data_sampling_uniform2[data_sampling_uniform2[:,0]!=1000,5]
+				data_sampling_uniform = np.loadtxt(Text_files_path+'Sampling/Networks/barabasi-albert/uniform/k_normalization/sampling_stats_R0%.1f_sigma%.1f_N%d_p%.1f_m%d_barabasi-albert.txt'%(beta/gamma,sigma,N,p,m))
+				#data_sampling_uniform2 = np.loadtxt(Text_files_path+'Sampling/Networks/barabasi-albert/uniform/prueba_CS/sampling_stats_R0%.1f_sigma%.1f_N%d_p%.1f_m%d_barabasi-albert.txt'%(beta/gamma,sigma,N,p,m))
+				#data_sampling_uniform_times = np.concatenate((data_sampling_uniform[data_sampling_uniform[:,0]!=1000,0],data_sampling_uniform2[data_sampling_uniform2[:,0]!=1000,0]))
+				data_sampling_uniform_times = data_sampling_uniform[data_sampling_uniform[:,0]!=1000,0]
+				data_sampling_uniform_cs = data_sampling_uniform[data_sampling_uniform[:,0]!=1000,5]
 
-				data_sampling_aposteriori = np.loadtxt(Text_files_path+'Sampling/Networks/barabasi-albert/aposteriori/sampling_stats_R0%.1f_sigma%.1f_N%d_p%.1f_m%d_barabasi-albert.txt'%(beta/gamma,sigma,N,p,m))
-				data_sampling_aposteriori2 = np.loadtxt(Text_files_path+'Sampling/Networks/barabasi-albert/aposteriori/prueba_CS/sampling_stats_R0%.1f_sigma%.1f_N%d_p%.1f_m%d_barabasi-albert.txt'%(beta/gamma,sigma,N,p,m))
-				data_sampling_aposteriori_times = np.concatenate((data_sampling_aposteriori[data_sampling_aposteriori[:,0]!=1000,0],data_sampling_aposteriori2[data_sampling_aposteriori2[:,0]!=1000,0]))
-				data_sampling_aposteriori_cs = data_sampling_aposteriori2[data_sampling_aposteriori2[:,0]!=1000,5]
+				data_sampling_aposteriori = np.loadtxt(Text_files_path+'Sampling/Networks/barabasi-albert/aposteriori/k_normalization/sampling_stats_R0%.1f_sigma%.1f_N%d_p%.1f_m%d_barabasi-albert.txt'%(beta/gamma,sigma,N,p,m))
+				#data_sampling_aposteriori2 = np.loadtxt(Text_files_path+'Sampling/Networks/barabasi-albert/aposteriori/prueba_CS/sampling_stats_R0%.1f_sigma%.1f_N%d_p%.1f_m%d_barabasi-albert.txt'%(beta/gamma,sigma,N,p,m))
+				#data_sampling_aposteriori_times = np.concatenate((data_sampling_aposteriori[data_sampling_aposteriori[:,0]!=1000,0],data_sampling_aposteriori2[data_sampling_aposteriori2[:,0]!=1000,0]))
+				data_sampling_aposteriori_times = data_sampling_aposteriori[data_sampling_aposteriori[:,0]!=1000,0]
+				data_sampling_aposteriori_cs = data_sampling_aposteriori[data_sampling_aposteriori[:,0]!=1000,5]
 
 
 				data_uniform_times = np.histogram(data_sampling_uniform_times, bins = np.arange(T_total+1), density=True)

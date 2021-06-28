@@ -80,10 +80,10 @@ def prob_detection_acum2(N, n, m):
 def sort_nodes(p, beta, sigma, gamma, data_I, data_E, data_nodes, upper_limit):
 
 	max_values = np.array([np.max(data_I[i,:]) for i in np.arange(len(data_I[:,0]))])
-	data_I = data_I[max_values!=0,:]
-	data_E = data_E[max_values!=0,:]
-	data_nodes = data_nodes[max_values!=0]
-	max_values = max_values[max_values!=0]
+	#data_I = data_I[max_values!=0,:]
+	#data_E = data_E[max_values!=0,:]
+	#data_nodes = data_nodes[max_values!=0]
+	#max_values = max_values[max_values!=0]
 	#data_ext = np.array([((data_I[i,-1]==0) & (np.max(data_I[i,:]) < 20)) for i in np.arange(len(data_I[:,0]))])
 	data_ext = np.array([(((data_I[i,-1]==0) and (data_E[i,-1]==0)) and (np.max(data_I[i,:]) < upper_limit)) for i in np.arange(len(data_I[:,0]))])
 
@@ -261,8 +261,8 @@ def plot_cum_prob_ind(I_max, sample_sizes, R0, N, func_time, func_infec, colors,
 def plot_trajectory(N, G_name, beta, sigma, gamma, T_total, p, initE, initI, est, Tseries, Eseries, Iseries, I_max_1, I_max_2, time, E_solution, I_solution, folder, external_ax = False, labels = False, succ = False, plot_E=False, plot_I=False, plot_det = False):
 	
 	
-	seaborn.set_style('ticks')
-	seaborn.despine()
+	sns.set_style('ticks')
+	sns.despine()
 
 	lambda1 = ((-sigma-gamma)/(2)) + (1/2)*np.sqrt((sigma-gamma)**2 + 4*sigma*beta)
 	est = 1/lambda1
@@ -306,16 +306,16 @@ def plot_trajectory(N, G_name, beta, sigma, gamma, T_total, p, initE, initI, est
 			ax.hlines(est, 0, T_total, linestyle = 'dashed', linewidth = 4, color = 'silver', alpha = .8)
 
 	#ax.vlines(est*np.log(np.exp(0.577216)/(1+(1/est))), 1, est, linestyle = 'dashed', alpha = 0.3) 
-	my_plot_layout(ax=ax, xlabel = 'Time [days]', ylabel = 'Indiv.', yscale  ='log')
+	my_plot_layout(ax=ax, xlabel = 'Time [days]', ylabel = 'Individuals', yscale  ='log', x_fontsize = 34, y_fontsize = 34)
 	ax.set_xlim(0,int(T_total-1))
 	ax.set_ylim(0.5,I_max_2*1.1)
 	lines_symbols = [Line2D([0], [0], linestyle = '-',linewidth = 4, color=colors_I[1], marker = '', ms = 12, alpha = 0.6), Line2D([0], [0], linestyle = '-',linewidth = 4, color=colors_I[2], marker = '', ms = 12, alpha = 0.6), 
 	Line2D([0], [0], linestyle = '--',linewidth = 3, color=colors_I[0], marker = '', ms = 12, alpha = 0.6), Line2D([0], [0], linestyle = '--',linewidth = 4, color='silver', marker = '', ms = 12, alpha = 0.6)]
 	labels_symbols = ['Established', 'Extinct', 'Deterministic', 'Establishment']
-	ax.legend(lines_symbols, labels_symbols, fontsize = 24, loc = 2)
+	ax.legend(lines_symbols, labels_symbols, fontsize = 24, loc = 4)
 
 	if not(external_ax):
-		fig.savefig(folder+'trajectory_R0%.1f_N%.0f_p%.1f_'%(beta/gamma, N, p)+G_name+'.pdf')
+		fig.savefig(folder+'pdfs/trajectory_R0%.1f_N%.0f_p%.1f_'%(beta/gamma, N, p)+G_name+'.pdf')
 		fig.savefig(folder+'trajectory_R0%.1f_N%.0f_p%.1f_'%(beta/gamma, N, p)+G_name+'.png', transparent=True)
 		return fig, ax
 

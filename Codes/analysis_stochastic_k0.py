@@ -18,9 +18,10 @@ colors_R = plt.cm.Paired(range(7))
 models = ['SEIR', 'SIR']
 gamma = 1/6
 ps=[0.0]
-sigmas=[1/4, 1000]
+sigmas=[1/4]
 u = np.linspace(0.00005,0.9,100000)
-
+tau_SIR = 1/gamma
+tau_SEIR = 2*(1/4+gamma)**(-1)
 
 
 #----Load data network of contacts----
@@ -48,14 +49,14 @@ for q, p in enumerate(ps):
                 model = models[s]
                 #----Plot 1----
                 fig, ax = plt.subplots(figsize = (10,8))
-                fig2, ax2 = plt.subplots(figsize = (10,8))
+                fig2, ax2 = plt.subplots(figsize = (10,8), gridspec_kw={'bottom': 0.14, 'left': 0.14})
 
                 R0_array = np.linspace(1.01, 5, 30)
                 T_array = R0_array*T_c
                 u_sol_array = np.array([u[np.array([np.sum(p_k*k*(1+(i-1)*T)**(k-1)) for i in u])>(np.sum(p_k*k)*u)][-1] for T in T_array])
 
                 if(sigma==1000):
-                        Ts = 1- ((meanDegree)/((meanDegree + R0s)))
+                        Ts = 1-np.array([np.sum(p_k*(1/(1+R/k**2))) for R in R0s])
                         u_sols = np.array([u[np.array([np.sum(p_k*k*(1+(i-1)*T)**(k-1)) for i in u])>(np.sum(p_k*k)*u)][-1] for T in Ts])
                         if(p==1.0):
                                 x, y = np.meshgrid(R0_array, k0s)
@@ -66,8 +67,8 @@ for q, p in enumerate(ps):
                                 z = 1-(1-(x*T_c)+((x*T_c)*x2))**y
 
                 if(sigma==1/4):
-                        #Ts = 1- ((meanDegree)/((meanDegree + (R0s*gamma)*2*(sigma+gamma)**(-1))))
-                        Ts = 1- ((meanDegree)/(meanDegree + np.sqrt(1-4*((sigma*gamma-sigma*((R0s*gamma)))/(sigma+gamma)**2))))
+                        #Ts = 1-np.array([np.sum(p_k*(1/(1+(np.sqrt(1-4*((sigma*gamma-sigma*b)/(sigma+gamma)**2)))/(k**2)))) for b in R0s*gamma])
+                        Ts = 1-np.array([np.sum(p_k*(1/(1+((b*tau_SEIR)/(k*(k)))))) for b in R0s*gamma])
                         u_sols = np.array([u[np.array([np.sum(p_k*k*(1+(i-1)*T)**(k-1)) for i in u])>(np.sum(p_k*k)*u)][-1] for T in Ts])
                         if(p==1.0):
                                 x, y = np.meshgrid(R0_array, k0s)
@@ -104,10 +105,10 @@ for q, p in enumerate(ps):
                         
 
                         #----Load data with simulation outcomes----
-                        data_nodes = np.loadtxt('../../../../Dropbox/Research/Epidemiology_2020/Text_files/Stochastic/Networks/barabasi-albert/stats_R0%.1f_sigma%.1f_N%d_p%.1f_barabasi-albert.txt'%(beta/gamma, sigma, N, p))
-                        data_I = np.loadtxt('../../../../Dropbox/Research/Epidemiology_2020/Text_files/Stochastic/Networks/barabasi-albert/ensemble_I_R0%.1f_sigma%.1f_N%d_p%.1f_barabasi-albert.txt'%(beta/gamma, sigma, N, p))
-                        data_E = np.loadtxt('../../../../Dropbox/Research/Epidemiology_2020/Text_files/Stochastic/Networks/barabasi-albert/ensemble_E_R0%.1f_sigma%.1f_N%d_p%.1f_barabasi-albert.txt'%(beta/gamma, sigma, N, p))
-                        nodes_ext , nodes_epi, I_ext, I_succ, max_values, data_ext = sort_nodes(p=p, beta=beta, sigma=sigma, gamma=gamma, data_I = data_I, data_E = data_E, data_nodes = data_nodes[:,0], upper_limit = 2)
+                        data_nodes = np.loadtxt('../../../../Dropbox/Research/Epidemiology_2020/Text_files/Stochastic/Networks/barabasi-albert/k_normalization/stats_R0%.1f_sigma%.1f_N%d_p%.1f_barabasi-albert.txt'%(beta/gamma, sigma, N, p))
+                        data_I = np.loadtxt('../../../../Dropbox/Research/Epidemiology_2020/Text_files/Stochastic/Networks/barabasi-albert/k_normalization/ensemble_I_R0%.1f_sigma%.1f_N%d_p%.1f_barabasi-albert.txt'%(beta/gamma, sigma, N, p))
+                        data_E = np.loadtxt('../../../../Dropbox/Research/Epidemiology_2020/Text_files/Stochastic/Networks/barabasi-albert/k_normalization/ensemble_E_R0%.1f_sigma%.1f_N%d_p%.1f_barabasi-albert.txt'%(beta/gamma, sigma, N, p))
+                        nodes_ext , nodes_epi, I_ext, I_succ, max_values, data_ext = sort_nodes(p=p, beta=beta, sigma=sigma, gamma=gamma, data_I = data_I, data_E = data_E, data_nodes = data_nodes[:,0], upper_limit = 5)
 
                         degrees_epi, counts_epi = np.unique(nodes_epi, return_counts=True)
                         degrees_ext, counts_ext = np.unique(nodes_ext, return_counts=True)
@@ -120,41 +121,44 @@ for q, p in enumerate(ps):
 
                         for d in degrees[:]:
                                 if(counts_ext[degrees_ext==d].size>0 and counts_epi[degrees_epi==d].size>0):
-                                        n_epi = counts_epi[degrees_epi==d][0]
+                                        n_epi_d = counts_epi[degrees_epi==d][0]
                                         #print(n_epi)
-                                        n_ext = counts_ext[degrees_ext==d][0]
-                                        n_total = n_epi + n_ext
-                                        prob_epi_k0_data = np.append(prob_epi_k0_data, (n_epi)/n_total)
-                                        print(d, n_total)
+                                        n_ext_d = counts_ext[degrees_ext==d][0]
+                                        n_total_d = n_epi_d + n_ext_d
+                                        prob_epi_k0_data = np.append(prob_epi_k0_data, (n_epi_d)/n_total_d)
                                 else:
                                         degrees = degrees[~np.isin(degrees, d)]
                                 
                         
                         ax.plot(degrees, prob_epi_k0_data , '^', color = colors_R[r], ms = 12,  label = r'$R_0=$%.1f'%(R0))
-                        ax.plot(k0s, prob_epi_k0,linewidth = 2, linestyle = '-', color = colors_R[r])
+                        ax.plot(k0s, prob_epi_k0,linewidth = 2, linestyle = '--', color = colors_R[r])
 
                         for j in np.array([int(i) for i in np.logspace(0, np.log10(len(prob_epi_k0_data)-1), 8)]):
                                 ax2.scatter(R0, (degrees[j])/meanDegree, marker = 's', color = plt.cm.jet(np.linspace(0,1,80))[int(79*prob_epi_k0_data[j])], s = 200, edgecolors='k')
 
                 # Plot 1
                 ax.hlines(1,1,40, linestyle = '--', color = 'silver')
-                my_plot_layout(ax = ax, xlabel = r'$k_0/\left\langle k \right\rangle$', ylabel = r'$P(\mathrm{epi}|k_0)$', yscale = 'linear', xscale='linear')
-                ax.set_xticks(np.array(np.arange(1,40,5)))
-                ax.set_xlim(1, 40)
+                my_plot_layout(ax = ax, xlabel = r'$k_0$', ylabel = r'$P(\mathrm{epi}|k_0)$', yscale = 'linear', xscale='linear', x_fontsize = 34, y_fontsize = 34)
+                ax.set_xticks(np.array(np.arange(0,41,5)))
+                ax.set_xlim(1, 50)
                 ax.set_ylim(-0.05, 1.05)
                 handles, labels = ax.get_legend_handles_labels()
                 ax.legend(np.concatenate(([],handles)), np.concatenate(([],labels)) , fontsize = 20, loc = 4, framealpha=.95)
                 fig.savefig('../Figures/Stochastic/Networks/barabasi-albert/Epi_prob_k0_'+model+'_p%.1f.png'%(p))
+                fig.savefig('../Figures/Stochastic/Networks/barabasi-albert/pdfs/Epi_prob_k0_'+model+'_p%.1f.pdf'%(p))
 
                 # Plot 2
-                my_plot_layout(ax=ax2, xlabel=r'$R_0$', ylabel=r'$k_0/\left\langle k \right\rangle$', yscale='log')
+                my_plot_layout(ax=ax2, xlabel=r'$R_0^N$', ylabel=r'$k_0/\left\langle k \right\rangle$', yscale='log', x_fontsize = 34, y_fontsize = 34)
                 if(p==1.0):
                         if(sigma==1000):
                                 ax2.set_xlim(1.02, 4.6)
                         if(sigma==1/4):
                                 ax2.set_xlim(1.02, 2.3)
                 if(p==0.0):
-                        ax2.set_xlim(1.02, 4)
+                        if(sigma==1000):
+                                ax2.set_xlim(1.02, 4.0)
+                        if(sigma==1/4):
+                                ax2.set_xlim(1.02, 3.6)
                 ax2.set_ylim(1.9/meanDegree, 50/meanDegree)
                 cbar = fig2.colorbar(cs, ticks=np.linspace(0,1,5))
                 #cbar.set_ticks(np.arange(5))
@@ -163,6 +167,7 @@ for q, p in enumerate(ps):
                 cbar.ax.tick_params(labelsize = 25)
                 cbar.add_lines(cs2)
                 fig2.savefig('../Figures/Stochastic/Networks/barabasi-albert/Epi_prob_k0_'+model+'_p%.1f_HM.png'%(p))
+                fig2.savefig('../Figures/Stochastic/Networks/barabasi-albert/pdfs/Epi_prob_k0_'+model+'_p%.1f_HM.pdf'%(p))
                 
 
 

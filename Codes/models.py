@@ -817,7 +817,7 @@ class SEIRSNetworkModel():
         #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
         propensities_StoE   = ( self.p*((self.beta*self.numI[self.tidx] + self.q*self.beta_D*self.numD_I[self.tidx])/self.N[self.tidx])
-                                + (1-self.p)*numpy.divide((transmissionTerms_I + transmissionTerms_DI), 4, out=numpy.zeros_like(self.degree), where=self.degree!=0)
+                                + (1-self.p)*numpy.divide((transmissionTerms_I + transmissionTerms_DI), self.degree, out=numpy.zeros_like(self.degree), where=self.degree!=0)
                               )*(self.X==self.S)
 
         propensities_EtoI   = self.sigma*(self.X==self.E)
