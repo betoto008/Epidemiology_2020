@@ -61,7 +61,7 @@ R0s_all = np.array([R0s_SIR_p, R0s_SEIR_p], dtype = object)
 colors_R = plt.cm.Paired(range(7))
 colors_p = ['darkblue', 'darkred']
 lines_symbols = []
-labels_symbols = ['Simulation']
+labels_symbols = []
 labels_model = ['SIR', 'SEIR']
 fig0, ax0 = plt.subplots(figsize = (10,8), gridspec_kw={'bottom': 0.14,'left':.2})
 
@@ -100,7 +100,7 @@ for l, sigma in enumerate(sigmas):
             
             ax.plot(R0, p_epi_array[-1], marker = markersR0[i_b], color = color_p, ms = 15, linestyle = '')
             if(sigma == 1000):
-                ax0.plot(R0, p_epi_array[-1], marker = markersR0[i_b], color = color_p, ms = 15, linestyle = '', alpha = .5)
+                ax0.plot(R0, p_epi_array[-1], marker = markersR0[i_b], color = color_p, ms = 15, linestyle = '', alpha = .4)
             if(sigma == 1/4):
                 ax0.plot(R0, p_epi_array[-1], marker = markersR0[i_b], color = color_p, ms = 15, linestyle = '')
             i_b +=1
@@ -108,7 +108,7 @@ for l, sigma in enumerate(sigmas):
         if(p==1.0):
             if(sigma==1000):
                 ax.plot(R0_array, 1-((1/R0_array)),linestyle = 'dashed', linewidth = 3, color = color_p, label = 'Fully-connected')
-                ax0.plot(R0_array, 1-((1/R0_array)),linestyle = 'dashed', linewidth = 3, color = color_p, alpha = .5)
+                ax0.plot(R0_array, 1-((1/R0_array)),linestyle = 'dashed', linewidth = 3, color = color_p, alpha = .4)
             if(sigma==1/4):
                 ax.plot(R0_array, 1-((1/R0_array)**2),linestyle = 'dashed', linewidth = 3, color = color_p, label = 'Fully-connected')
                 ax0.plot(R0_array, 1-((1/R0_array)**2),linestyle = 'dashed', linewidth = 3, color = color_p, label = 'Fully-connected')
@@ -116,7 +116,7 @@ for l, sigma in enumerate(sigmas):
             if(sigma==1000):
                 R0_N_array2 = Ts_array/T_c
                 ax.plot(R0_N_array2, S_SIR ,linestyle = 'dashed', linewidth = 3, color = color_p, label = r'Network')
-                ax0.plot(R0_N_array2, S_SIR ,linestyle = 'dashed', linewidth = 3, color = color_p, alpha = .5)
+                ax0.plot(R0_N_array2, S_SIR ,linestyle = 'dashed', linewidth = 3, color = color_p, alpha = .4)
             if(sigma==1/4):
                 R0_N_array2 = Ts_array/T_c
                 ax.plot(R0_N_array2, S_SEIR ,linestyle = 'dashed', linewidth = 3, color = color_p, label = r'Network')
@@ -126,7 +126,7 @@ for l, sigma in enumerate(sigmas):
     #ax.vlines(1,0,1, linestyle = 'dashed', color = 'silver', alpha = .4, linewidth = 1)
     my_plot_layout(ax=ax, xlabel = r'Reproductive number', ylabel=r'Probability of epidemic', x_fontsize = 34, y_fontsize = 34)
     if(sigma==1000):
-        ax.set_xlim(0.8,5.55)
+        ax.set_xlim(0.8,5.1)
     if(sigma==1/4):
         ax.set_xlim(0.8,2.85)
     ax.set_ylim(-0.05, 1.05)
@@ -137,8 +137,8 @@ for l, sigma in enumerate(sigmas):
 
 ax0.hlines(1,0.5,6.5, linestyle = 'dashed', color = 'silver', alpha = .4, linewidth = 1)
 ax0.vlines(1,0,1, linestyle = 'dashed', color = 'silver', alpha = .4, linewidth = 1)
-ax0.set_xlim(0.8,5.55)
-my_plot_layout(ax=ax0, xlabel = r'$R_0$', ylabel=r'Probability of epidemic')
+ax0.set_xlim(0.8,5.1)
+my_plot_layout(ax=ax0, xlabel = r'Reproductive number', ylabel=r'Probability of epidemic')
 ax0.legend(fontsize = 20, loc = 4, framealpha=.95)
 fig0.savefig('../Figures/Stochastic/Networks/barabasi-albert/Prob_epi.png')
 fig0.savefig('../Figures/Stochastic/Networks/barabasi-albert/pdfs/Prob_epi.pdf')

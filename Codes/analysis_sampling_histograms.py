@@ -85,13 +85,13 @@ for s, sigma in enumerate(sigmas):
 			ax.hlines([0, .9, 1],0, T_total, linestyle = 'dashed', color = 'silver', linewidth = 3)
 			#ax2.hlines([0, .9, 1],0,T_total, linestyle = 'dashed', color = 'silver', linewidth = 3)
 			for m, color, color_m in zip(sample_sizes, colors, colors_m):
-				data_sampling_uniform = np.loadtxt(Text_files_path+'Sampling/Networks/barabasi-albert/uniform/k_normalization/sampling_stats_R0%.1f_sigma%.1f_N%d_p%.1f_m%d_barabasi-albert.txt'%(beta/gamma,sigma,N,p,m))
+				data_sampling_uniform = np.loadtxt(Text_files_path+'Sampling/Networks/barabasi-albert/uniform/k_normalization/likelihood/sampling_stats_R0%.1f_sigma%.1f_N%d_p%.1f_m%d_barabasi-albert.txt'%(beta/gamma,sigma,N,p,m))
 				#data_sampling_uniform2 = np.loadtxt(Text_files_path+'Sampling/Networks/barabasi-albert/uniform/prueba_CS/sampling_stats_R0%.1f_sigma%.1f_N%d_p%.1f_m%d_barabasi-albert.txt'%(beta/gamma,sigma,N,p,m))
 				#data_sampling_uniform_times = np.concatenate((data_sampling_uniform[data_sampling_uniform[:,0]!=1000,0],data_sampling_uniform2[data_sampling_uniform2[:,0]!=1000,0]))
 				data_sampling_uniform_times = data_sampling_uniform[data_sampling_uniform[:,0]!=1000,0]
 				data_sampling_uniform_cs = data_sampling_uniform[data_sampling_uniform[:,0]!=1000,5]
 
-				data_sampling_aposteriori = np.loadtxt(Text_files_path+'Sampling/Networks/barabasi-albert/aposteriori/k_normalization/sampling_stats_R0%.1f_sigma%.1f_N%d_p%.1f_m%d_barabasi-albert.txt'%(beta/gamma,sigma,N,p,m))
+				data_sampling_aposteriori = np.loadtxt(Text_files_path+'Sampling/Networks/barabasi-albert/aposteriori/k_normalization/likelihood/sampling_stats_R0%.1f_sigma%.1f_N%d_p%.1f_m%d_barabasi-albert.txt'%(beta/gamma,sigma,N,p,m))
 				#data_sampling_aposteriori2 = np.loadtxt(Text_files_path+'Sampling/Networks/barabasi-albert/aposteriori/prueba_CS/sampling_stats_R0%.1f_sigma%.1f_N%d_p%.1f_m%d_barabasi-albert.txt'%(beta/gamma,sigma,N,p,m))
 				#data_sampling_aposteriori_times = np.concatenate((data_sampling_aposteriori[data_sampling_aposteriori[:,0]!=1000,0],data_sampling_aposteriori2[data_sampling_aposteriori2[:,0]!=1000,0]))
 				data_sampling_aposteriori_times = data_sampling_aposteriori[data_sampling_aposteriori[:,0]!=1000,0]
@@ -113,14 +113,14 @@ for s, sigma in enumerate(sigmas):
 			my_plot_layout(ax=ax, xlabel='Time [days]', ylabel='Cum. Prob. detection', yscale='linear')
 			ax.set_xlim(0, np.min((90, T_total)))
 			ax.legend(loc = 4, fontsize = 26)
-			fig.savefig('../Figures/Sampling/Networks/barabasi-albert/prueba/prob_cum_time_'+model+'_R0%.1f_p%.1f.png'%(beta/gamma,p))
+			fig.savefig('../Figures/Sampling/Networks/barabasi-albert/prueba/prob_cum_time_'+model+'_R0%.1f_p%.1f_L.png'%(beta/gamma,p))
 			plt.close(fig)
 
 			my_plot_layout(ax=ax2, xlabel=r'Cluster size $n$', ylabel='Prob. detection', yscale='linear')
 			ax2.set_xlim(0, 100)
 			#ax2.set_ylim(0, np.max(data_aposteriori[0]*2.5))
 			ax2.legend(loc = 4, fontsize = 26)
-			fig2.savefig('../Figures/Sampling/Networks/barabasi-albert/prueba/prob_cs_'+model+'_R0%.1f_p%.1f.png'%(beta/gamma,p))
+			fig2.savefig('../Figures/Sampling/Networks/barabasi-albert/prueba/prob_cs_'+model+'_R0%.1f_p%.1f_L.png'%(beta/gamma,p))
 			plt.close(fig2)
 
 			i_b += 1

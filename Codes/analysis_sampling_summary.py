@@ -42,8 +42,8 @@ colors_m = ['darkgreen', 'darkblue', 'darkred']
 colors = ['green', 'blue', 'red']
 tau_SEIR = 2*(1/4+gamma)**(-1)
 
-n50_0 = np.tile(np.array([5, 3, 2, 1, 1]), (3,1))
-n50_1 = np.tile(np.array([4, 2, 1, 1]), (3,1))
+n50_0 = np.transpose(np.tile(np.array([5, 3, 2, 1, 1]), (3,1)))
+n50_1 = np.transpose(np.tile(np.array([4, 2, 1, 1]), (3,1)))
 
 
 for s, sigma in enumerate(sigmas):
@@ -100,15 +100,11 @@ for s, sigma in enumerate(sigmas):
 			print('p:', p, 'sig:', sigma, 'R0:', beta/gamma, 'T:', T_total)
 			i_m = 1
 			for m, color, color_m in zip(sample_sizes, colors, colors_m):
-				data_sampling_uniform = np.loadtxt(Text_files_path+'Sampling/Networks/barabasi-albert/uniform/k_normalization/sampling_stats_R0%.1f_sigma%.1f_N%d_p%.1f_m%d_barabasi-albert.txt'%(beta/gamma,sigma,N,p,m))
-				#data_sampling_uniform2 = np.loadtxt(Text_files_path+'Sampling/Networks/barabasi-albert/uniform/prueba_CS/sampling_stats_R0%.1f_sigma%.1f_N%d_p%.1f_m%d_barabasi-albert.txt'%(beta/gamma,sigma,N,p,m))
-				#data_sampling_uniform_times = np.concatenate((data_sampling_uniform[data_sampling_uniform[:,0]!=1000,0],data_sampling_uniform2[data_sampling_uniform2[:,0]!=1000,0]))
+				data_sampling_uniform = np.loadtxt(Text_files_path+'Sampling/Networks/barabasi-albert/uniform/k_normalization/likelihood/sampling_stats_R0%.1f_sigma%.1f_N%d_p%.1f_m%d_barabasi-albert.txt'%(beta/gamma,sigma,N,p,m))
 				data_sampling_uniform_times = data_sampling_uniform[data_sampling_uniform[:,0]!=1000,0]
 				data_sampling_uniform_cs = data_sampling_uniform[data_sampling_uniform[:,0]!=1000,5]
 
-				data_sampling_aposteriori = np.loadtxt(Text_files_path+'Sampling/Networks/barabasi-albert/aposteriori/k_normalization/sampling_stats_R0%.1f_sigma%.1f_N%d_p%.1f_m%d_barabasi-albert.txt'%(beta/gamma,sigma,N,p,m))
-				#data_sampling_aposteriori2 = np.loadtxt(Text_files_path+'Sampling/Networks/barabasi-albert/aposteriori/prueba_CS/sampling_stats_R0%.1f_sigma%.1f_N%d_p%.1f_m%d_barabasi-albert.txt'%(beta/gamma,sigma,N,p,m))
-				#data_sampling_aposteriori_times = np.concatenate((data_sampling_aposteriori[data_sampling_aposteriori[:,0]!=1000,0],data_sampling_aposteriori2[data_sampling_aposteriori2[:,0]!=1000,0]))
+				data_sampling_aposteriori = np.loadtxt(Text_files_path+'Sampling/Networks/barabasi-albert/aposteriori/k_normalization/likelihood/sampling_stats_R0%.1f_sigma%.1f_N%d_p%.1f_m%d_barabasi-albert.txt'%(beta/gamma,sigma,N,p,m))
 				data_sampling_aposteriori_times = data_sampling_aposteriori[data_sampling_aposteriori[:,0]!=1000,0]
 				data_sampling_aposteriori_cs = data_sampling_aposteriori[data_sampling_aposteriori[:,0]!=1000,5]
 
@@ -120,10 +116,10 @@ for s, sigma in enumerate(sigmas):
 				i_m+=1
 			i_b += 1
 
-		avg_t_uniform = np.reshape(avg_t_uniform, (np.size(sample_sizes), np.size(Ts_total)))
-		avg_cs_uniform = np.reshape(avg_cs_uniform, (np.size(sample_sizes), np.size(Ts_total)))
-		avg_t_aposteriori = np.reshape(avg_t_aposteriori, (np.size(sample_sizes), np.size(Ts_total)))
-		avg_cs_aposteriori = np.reshape(avg_cs_aposteriori, (np.size(sample_sizes), np.size(Ts_total)))
+		avg_t_uniform = np.reshape(avg_t_uniform, (np.size(Ts_total), np.size(sample_sizes)))
+		avg_cs_uniform = np.reshape(avg_cs_uniform, (np.size(Ts_total), np.size(sample_sizes)))
+		avg_t_aposteriori = np.reshape(avg_t_aposteriori, (np.size(Ts_total), np.size(sample_sizes)))
+		avg_cs_aposteriori = np.reshape(avg_cs_aposteriori, (np.size(Ts_total), np.size(sample_sizes)))
 
 
 		sns.heatmap(avg_t_uniform, vmin = 0, vmax=np.max(avg_t_uniform), ax = ax, cmap=plt.cm.twilight, center = 0, cbar = True, cbar_kws={'label': r'$T_U$'}, linewidths=.5)
@@ -134,71 +130,71 @@ for s, sigma in enumerate(sigmas):
 		sns.heatmap(avg_cs_aposteriori/avg_cs_uniform, vmin = np.min((np.max(avg_cs_aposteriori/avg_cs_uniform)**(-1), np.min(avg_cs_aposteriori/avg_cs_uniform))), vmax=np.max((np.max(avg_cs_aposteriori/avg_cs_uniform), np.min(avg_cs_aposteriori/avg_cs_uniform)**(-1))), ax = ax6, cmap=plt.cm.seismic, center = 1, cbar = True, cbar_kws={'label': r'$n_{A}/n_{U}$'}, linewidths=.5)
 
 
-		my_plot_layout(ax=ax, ylabel=r'Sample size (%)', xlabel=r'$R_0$', yscale='linear', x_fontsize = 34, y_fontsize = 34)
-		ax.set_yticks([.5, 1.5, 2.])
-		ax.set_yticklabels(FormatStrFormatter('%.1f').format_ticks(sample_sizes/N*100))
-		ax.set_xticks(np.array([g + 0.5 for g in np.arange(len(betas))]))
-		ax.set_xticklabels(FormatStrFormatter('%.1f').format_ticks(R0s))
+		my_plot_layout(ax=ax, xlabel=r'Sample size (%)', ylabel=r'$R_0$', xscale='linear', x_fontsize = 34, y_fontsize = 34)
+		ax.set_xticks([.5, 1.5, 2.])
+		ax.set_xticklabels(FormatStrFormatter('%.1f').format_ticks(sample_sizes/N*100))
+		ax.set_yticks(np.array([g + 0.5 for g in np.arange(len(betas))]))
+		ax.set_yticklabels(FormatStrFormatter('%.1f').format_ticks(R0s))
 		cbar = ax.collections[0].colorbar
 		cbar.ax.tick_params(labelsize=18)
 		ax.figure.axes[-1].yaxis.label.set_size(30)
-		fig.savefig('../Figures/Sampling/Networks/barabasi-albert/prueba/avg_t_uniform_'+model+'_p%.1f.pdf'%(p))
+		fig.savefig('../Figures/Sampling/Networks/barabasi-albert/prueba/avg_t_uniform_'+model+'_p%.1f_L.pdf'%(p))
 
 		plt.close(fig)
 
-		my_plot_layout(ax=ax2, ylabel=r'Sample size (%)', xlabel=r'$R_0$', yscale='linear', x_fontsize = 34, y_fontsize = 34)
-		ax2.set_yticks([.5, 1.5, 2.5])
-		ax2.set_yticklabels(FormatStrFormatter('%.1f').format_ticks(sample_sizes/N*100))
-		ax2.set_xticks(np.array([g + 0.5 for g in np.arange(len(betas))]))
-		ax2.set_xticklabels(FormatStrFormatter('%.1f').format_ticks(R0s))
+		my_plot_layout(ax=ax2, xlabel=r'Sample size (%)', ylabel=r'$R_0$', xscale='linear', x_fontsize = 34, y_fontsize = 34)
+		ax2.set_xticks([.5, 1.5, 2.5])
+		ax2.set_xticklabels(FormatStrFormatter('%.1f').format_ticks(sample_sizes/N*100))
+		ax2.set_yticks(np.array([g + 0.5 for g in np.arange(len(betas))]))
+		ax2.set_yticklabels(FormatStrFormatter('%.1f').format_ticks(R0s))
 		cbar = ax2.collections[0].colorbar
 		cbar.ax.tick_params(labelsize=18)
 		ax2.figure.axes[-1].yaxis.label.set_size(30)
-		fig2.savefig('../Figures/Sampling/Networks/barabasi-albert/prueba/avg_cs_uniform_'+model+'_p%.1f.pdf'%(p))
+		fig2.savefig('../Figures/Sampling/Networks/barabasi-albert/prueba/avg_cs_uniform_'+model+'_p%.1f_L.pdf'%(p))
 		plt.close(fig2)
 
-		my_plot_layout(ax=ax3, ylabel=r'Sample size (%)', xlabel=r'$R_0$', yscale='linear', x_fontsize = 34, y_fontsize = 34)
-		ax3.set_yticks([.5, 1.5, 2.5])
-		ax3.set_yticklabels(FormatStrFormatter('%.1f').format_ticks(sample_sizes/N*100))
-		ax3.set_xticks(np.array([g + 0.5 for g in np.arange(len(betas))]))
-		ax3.set_xticklabels(FormatStrFormatter('%.1f').format_ticks(R0s))
+		my_plot_layout(ax=ax3, xlabel=r'Sample size (%)', ylabel=r'$R_0$', yscale='linear', x_fontsize = 34, y_fontsize = 34)
+		ax3.set_xticks([.5, 1.5, 2.5])
+		ax3.set_xticklabels(FormatStrFormatter('%.1f').format_ticks(sample_sizes/N*100))
+		ax3.set_yticks(np.array([g + 0.5 for g in np.arange(len(betas))]))
+		ax3.set_yticklabels(FormatStrFormatter('%.1f').format_ticks(R0s))
 		cbar = ax3.collections[0].colorbar
 		cbar.ax.tick_params(labelsize=18)
 		ax3.figure.axes[-1].yaxis.label.set_size(30)
-		fig3.savefig('../Figures/Sampling/Networks/barabasi-albert/prueba/avg_t_aposteriori_'+model+'_p%.1f.pdf'%(p))
+		fig3.savefig('../Figures/Sampling/Networks/barabasi-albert/prueba/avg_t_aposteriori_'+model+'_p%.1f_L.pdf'%(p))
 		plt.close(fig3)
 
-		my_plot_layout(ax=ax4, ylabel=r'Sample size (%)', xlabel=r'$R_0$', yscale='linear', x_fontsize = 34, y_fontsize = 34)
-		ax4.set_yticks([.5, 1.5, 2.5])
-		ax4.set_yticklabels(FormatStrFormatter('%.1f').format_ticks(sample_sizes/N*100))
-		ax4.set_xticks(np.array([g + 0.5 for g in np.arange(len(betas))]))
-		ax4.set_xticklabels(FormatStrFormatter('%.1f').format_ticks(R0s))
+		my_plot_layout(ax=ax4, xlabel=r'Sample size (%)', ylabel=r'$R_0$', yscale='linear', x_fontsize = 34, y_fontsize = 34)
+		ax4.set_xticks([.5, 1.5, 2.5])
+		ax4.set_xticklabels(FormatStrFormatter('%.1f').format_ticks(sample_sizes/N*100))
+		ax4.set_yticks(np.array([g + 0.5 for g in np.arange(len(betas))]))
+		ax4.set_yticklabels(FormatStrFormatter('%.1f').format_ticks(R0s))
 		cbar = ax4.collections[0].colorbar
 		cbar.ax.tick_params(labelsize=18)
 		ax4.figure.axes[-1].yaxis.label.set_size(30)
-		fig4.savefig('../Figures/Sampling/Networks/barabasi-albert/prueba/avg_cs_aposteriori_'+model+'_p%.1f.pdf'%(p))
+		fig4.savefig('../Figures/Sampling/Networks/barabasi-albert/prueba/avg_cs_aposteriori_'+model+'_p%.1f_L.pdf'%(p))
 		plt.close(fig4)
 
-		my_plot_layout(ax=ax5, ylabel=r'Sample size (%)', xlabel=r'$R_0$', yscale='linear', x_fontsize = 34, y_fontsize = 34)
-		ax5.set_yticks([.5, 1.5, 2.5])
-		ax5.set_yticklabels(FormatStrFormatter('%.1f').format_ticks(sample_sizes/N*100))
-		ax5.set_xticks(np.array([g + 0.5 for g in np.arange(len(betas))]))
-		ax5.set_xticklabels(FormatStrFormatter('%.1f').format_ticks(R0s))
+		my_plot_layout(ax=ax5, xlabel=r'Sample size (%)', ylabel=r'$R_0$', yscale='linear', x_fontsize = 34, y_fontsize = 34)
+		ax5.set_xticks([.5, 1.5, 2.5])
+		ax5.set_xticklabels(FormatStrFormatter('%.1f').format_ticks(sample_sizes/N*100))
+		ax5.set_yticks(np.array([g + 0.5 for g in np.arange(len(betas))]))
+		ax5.set_yticklabels(FormatStrFormatter('%.1f').format_ticks(R0s))
 		cbar = ax5.collections[0].colorbar
 		cbar.ax.tick_params(labelsize=18)
 		ax5.figure.axes[-1].yaxis.label.set_size(30)
-		fig5.savefig('../Figures/Sampling/Networks/barabasi-albert/prueba/figure_times_'+model+'_p%.1f.pdf'%(p))
+		fig5.savefig('../Figures/Sampling/Networks/barabasi-albert/prueba/figure_times_'+model+'_p%.1f_L.pdf'%(p))
 		plt.close(fig5)
 
-		my_plot_layout(ax=ax6, ylabel=r'Sample size (%)', xlabel=r'$R_0$', yscale='linear', x_fontsize = 34, y_fontsize = 34)
-		ax6.set_yticks([.5, 1.5, 2.5])
-		ax6.set_yticklabels(FormatStrFormatter('%.1f').format_ticks(sample_sizes/N*100))
-		ax6.set_xticks(np.array([g + 0.5 for g in np.arange(len(betas))]))
-		ax6.set_xticklabels(FormatStrFormatter('%.1f').format_ticks(R0s))
+		my_plot_layout(ax=ax6, xlabel=r'Sample size (%)', ylabel=r'$R_0$', yscale='linear', x_fontsize = 34, y_fontsize = 34)
+		ax6.set_xticks([.5, 1.5, 2.5])
+		ax6.set_xticklabels(FormatStrFormatter('%.1f').format_ticks(sample_sizes/N*100))
+		ax6.set_yticks(np.array([g + 0.5 for g in np.arange(len(betas))]))
+		ax6.set_yticklabels(FormatStrFormatter('%.1f').format_ticks(R0s))
 		cbar = ax6.collections[0].colorbar
 		cbar.ax.tick_params(labelsize=18)
 		ax6.figure.axes[-1].yaxis.label.set_size(30)
-		fig6.savefig('../Figures/Sampling/Networks/barabasi-albert/prueba/figure_cs_'+model+'_p%.1f.pdf'%(p))
+		fig6.savefig('../Figures/Sampling/Networks/barabasi-albert/prueba/figure_cs_'+model+'_p%.1f_L.pdf'%(p))
 		plt.close(fig6)
 
 		i_p+=1
