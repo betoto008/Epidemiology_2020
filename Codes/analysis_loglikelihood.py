@@ -130,7 +130,7 @@ for q, p in enumerate(ps):
 		my_plot_layout(ax = ax, yscale='linear', xscale='log', ylabel=r'$\log{\left(\frac{p(k|\mathrm{epi})}{p(k)}\right)}$', xlabel=r'$k_0/\left\langle k \right\rangle$', x_fontsize = 34, y_fontsize = 34)
 		my_plot_layout(ax = ax2, yscale='linear', xscale='log', xlabel=r'$k_0/\left\langle k \right\rangle$', x_fontsize = 34, y_fontsize = 34)
 
-		ax.legend(fontsize = 22, title = r'$R_0^N$', title_fontsize = 24)
+		ax.legend(fontsize = 22, title = r'$\hat{R}_0$', title_fontsize = 24)
 		ax.set_ylim(-.1, .7)
 		ax.set_xlim(1.9/meanDegree, 80/meanDegree)
 		fig.savefig('../Figures/Stochastic/Networks/barabasi-albert/log-likelihood_'+model+'_p%.1f.png'%( p))

@@ -168,7 +168,7 @@ for s, sigma in enumerate(sigmas):
 		ax.hlines(n50[0,:], np.arange(len(R0s))*3 + 0.55, np.arange(1, len(R0s)+1)*3 + 0.45, color = 'black', lw = 2)
 		lines_symbols = [Line2D([0], [0], color=colors_m[0], linestyle='', marker = 's', ms = 8), Line2D([0], [0], color=colors_m[1], linestyle='', marker = 's', ms = 8), Line2D([0], [0], color=colors_m[2], linestyle='', marker = 's', ms = 8), Line2D([0], [0], color='black', linestyle='-', lw = 2, marker = '', ms = 8)]
 		labels_symbols = np.concatenate(([FormatStrFormatter('%.1f').format_ticks(np.array([sample_sizes[i]])/N*100)[0] + '%' for i in np.arange(3)] ,[r'$n^*$']))
-		my_plot_layout(ax=ax, ylabel=r'Cluster size', xlabel=r'$R_0^N$', yscale='log', x_fontsize = 34, y_fontsize = 34)
+		my_plot_layout(ax=ax, ylabel=r'Cluster size', xlabel=r'$\hat{R}_0$', yscale='log', x_fontsize = 34, y_fontsize = 34)
 		ax.set_xticks(np.arange(2,len(R0s)*3 + 1, 3))
 		ax.set_xticklabels(FormatStrFormatter('%.1f').format_ticks(R0s))
 		ax.legend(lines_symbols, labels_symbols, fontsize = 24, title = r'$m$', title_fontsize = 24)
@@ -178,7 +178,7 @@ for s, sigma in enumerate(sigmas):
 		ax2.vlines(np.array([i*3+0.5 for i in np.arange(len(R0s)+1)]), 0, ax2.get_ylim()[1]*0.9, linestyle = '--', color = 'silver')
 		lines_symbols = [Line2D([0], [0], color=colors_m[0], linestyle='', marker = 's', ms = 8), Line2D([0], [0], color=colors_m[1], linestyle='', marker = 's', ms = 8), Line2D([0], [0], color=colors_m[2], linestyle='', marker = 's', ms = 8), Line2D([0], [0], color='black', linestyle='-', marker = '', ms = 8)]
 		labels_symbols = np.concatenate(([FormatStrFormatter('%.1f').format_ticks(np.array([sample_sizes[i]])/N*100)[0] + '%' for i in np.arange(3)],[r'$n^*$']))
-		my_plot_layout(ax=ax2, ylabel=r'Cluster size', xlabel=r'$R_0^N$', yscale='log', x_fontsize = 34, y_fontsize = 34)
+		my_plot_layout(ax=ax2, ylabel=r'Cluster size', xlabel=r'$\hat{R}_0$', yscale='log', x_fontsize = 34, y_fontsize = 34)
 		ax2.set_xticks(np.arange(2,len(R0s)*3 + 1, 3))
 		ax2.set_xticklabels(FormatStrFormatter('%.1f').format_ticks(R0s))
 		ax2.legend(lines_symbols, labels_symbols, fontsize = 24)
@@ -189,7 +189,7 @@ for s, sigma in enumerate(sigmas):
 		ax3.hlines(n50[0,:], np.arange(len(R0s))*2 + 0.55, np.arange(1, len(R0s)+1)*2 + 0.45, color = 'black', lw = 2)
 		lines_symbols = [Line2D([0], [0], color=colors_m[0], linestyle='', marker = 's', ms = 10, alpha = .6), Line2D([0], [0], color=colors[0], linestyle='', marker = 's', ms = 10, alpha = .6)]
 		labels_symbols = ['Uniform', 'Degree-based']
-		my_plot_layout(ax=ax3, ylabel=r'Cluster size', xlabel=r'$R_0^N$', yscale='log', x_fontsize = 34, y_fontsize = 34)
+		my_plot_layout(ax=ax3, ylabel=r'Cluster size', xlabel=r'$\hat{R}_0$', yscale='log', x_fontsize = 34, y_fontsize = 34)
 		ax3.set_xticks(np.arange(1,len(R0s)*2 + 1, 2)+0.5)
 		ax3.set_xticklabels(FormatStrFormatter('%.1f').format_ticks(R0s))
 		ax3.legend(lines_symbols, labels_symbols, fontsize = 24)
@@ -200,7 +200,7 @@ for s, sigma in enumerate(sigmas):
 		ax4.hlines(n50[0,:], np.arange(len(R0s))*2 + 0.55, np.arange(1, len(R0s)+1)*2 + 0.45, color = 'black', lw = 2)
 		lines_symbols = [Line2D([0], [0], color=colors_m[1], linestyle='', marker = 's', ms = 10, alpha = .6), Line2D([0], [0], color=colors[1], linestyle='', marker = 's', ms = 10, alpha = .6)]
 		labels_symbols = ['Uniform', 'Degree-based']
-		my_plot_layout(ax=ax4, ylabel=r'Cluster size', xlabel=r'$R_0^N$', yscale='log', x_fontsize = 34, y_fontsize = 34)
+		my_plot_layout(ax=ax4, ylabel=r'Cluster size', xlabel=r'$\hat{R}_0$', yscale='log', x_fontsize = 34, y_fontsize = 34)
 		ax4.set_xticks(np.arange(1,len(R0s)*2 + 1, 2)+0.5)
 		ax4.set_xticklabels(FormatStrFormatter('%.1f').format_ticks(R0s))
 		ax4.legend(lines_symbols, labels_symbols, fontsize = 24)
@@ -211,7 +211,7 @@ for s, sigma in enumerate(sigmas):
 		ax5.hlines(n50[0,:], np.arange(len(R0s))*2 + 0.55, np.arange(1, len(R0s)+1)*2 + 0.45, color = 'black', lw = 2)
 		lines_symbols = [Line2D([0], [0], color=colors_m[2], linestyle='', marker = 's', ms = 10, alpha = .6), Line2D([0], [0], color=colors[2], linestyle='', marker = 's', ms = 10, alpha = .6)]
 		labels_symbols = ['Uniform', 'Degree-based']
-		my_plot_layout(ax=ax5, ylabel=r'Cluster size', xlabel=r'$R_0^N$', yscale='log', x_fontsize = 34, y_fontsize = 34)
+		my_plot_layout(ax=ax5, ylabel=r'Cluster size', xlabel=r'$\hat{R}_0$', yscale='log', x_fontsize = 34, y_fontsize = 34)
 		ax5.set_xticks(np.arange(1,len(R0s)*2 + 1, 2)+0.5)
 		ax5.set_xticklabels(FormatStrFormatter('%.1f').format_ticks(R0s))
 		ax5.legend(lines_symbols, labels_symbols, fontsize = 24)

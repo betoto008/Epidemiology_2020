@@ -148,7 +148,7 @@ for q, p in enumerate(ps):
                 fig.savefig('../Figures/Stochastic/Networks/barabasi-albert/pdfs/Epi_prob_k0_'+model+'_p%.1f.pdf'%(p))
 
                 # Plot 2
-                my_plot_layout(ax=ax2, xlabel=r'$R_0^N$', ylabel=r'$k_0/\left\langle k \right\rangle$', yscale='log', x_fontsize = 34, y_fontsize = 34)
+                my_plot_layout(ax=ax2, xlabel=r'$\hat{R}_0$', ylabel=r'$k_0/\left\langle k \right\rangle$', yscale='log', x_fontsize = 34, y_fontsize = 34)
                 if(p==1.0):
                         if(sigma==1000):
                                 ax2.set_xlim(1.02, 4.6)

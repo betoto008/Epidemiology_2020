@@ -121,16 +121,21 @@ for s, sigma in enumerate(sigmas):
 		avg_t_aposteriori = np.reshape(avg_t_aposteriori, (np.size(Ts_total), np.size(sample_sizes)))
 		avg_cs_aposteriori = np.reshape(avg_cs_aposteriori, (np.size(Ts_total), np.size(sample_sizes)))
 
+		if(p==0.0):
+			vmin_t_0 = np.min(((np.max(avg_t_aposteriori/avg_t_uniform)**(-1), np.min(avg_t_aposteriori/avg_t_uniform))))
+			vmax_t_0 = np.max((np.max(avg_t_aposteriori/avg_t_uniform), np.min(avg_t_aposteriori/avg_t_uniform)**(-1)))
+			vmin_cs_0 = np.min((np.max(avg_cs_aposteriori/avg_cs_uniform)**(-1), np.min(avg_cs_aposteriori/avg_cs_uniform)))
+			vmax_cs_0 = np.max((np.max(avg_cs_aposteriori/avg_cs_uniform), np.min(avg_cs_aposteriori/avg_cs_uniform)**(-1)))
 
 		sns.heatmap(avg_t_uniform, vmin = 0, vmax=np.max(avg_t_uniform), ax = ax, cmap=plt.cm.twilight, center = 0, cbar = True, cbar_kws={'label': r'$T_U$'}, linewidths=.5)
 		sns.heatmap(avg_cs_uniform/n50, vmin = np.min((np.max(avg_cs_uniform/n50)**(-1), np.min(avg_cs_uniform/n50))), vmax=np.max((np.max(avg_cs_uniform/n50), np.min(avg_cs_uniform/n50)**(-1))), ax = ax2, cmap=plt.cm.seismic, center = 1, cbar = True, cbar_kws={'label': r'$n_U/n^*$'}, linewidths=.5)
-		sns.heatmap(avg_t_aposteriori, vmin = 0, vmax=np.max(avg_t_aposteriori), ax = ax3, cmap=plt.cm.twilight, center = 0, cbar = True, cbar_kws={'label': r'$T_A$'}, linewidths=.5)
-		sns.heatmap(avg_cs_aposteriori/n50, vmin = np.min((np.max(avg_cs_aposteriori/n50)**(-1), np.min(avg_cs_aposteriori/n50))), vmax=np.max((np.max(avg_cs_aposteriori/n50), np.min(avg_cs_aposteriori/n50)**(-1))), ax = ax4, cmap=plt.cm.seismic, center = 1, cbar = True, cbar_kws={'label': r'$n_A/n^*$'}, linewidths=.5)
-		sns.heatmap(avg_t_aposteriori/avg_t_uniform, vmin = np.min(((np.max(avg_t_aposteriori/avg_t_uniform)**(-1), np.min(avg_t_aposteriori/avg_t_uniform)))), vmax=np.max((np.max(avg_t_aposteriori/avg_t_uniform), np.min(avg_t_aposteriori/avg_t_uniform)**(-1))), ax = ax5, cmap=plt.cm.seismic, center = 1, cbar = True, cbar_kws={'label': r'$T_{A}/T_{U}$'}, linewidths=.5)
-		sns.heatmap(avg_cs_aposteriori/avg_cs_uniform, vmin = np.min((np.max(avg_cs_aposteriori/avg_cs_uniform)**(-1), np.min(avg_cs_aposteriori/avg_cs_uniform))), vmax=np.max((np.max(avg_cs_aposteriori/avg_cs_uniform), np.min(avg_cs_aposteriori/avg_cs_uniform)**(-1))), ax = ax6, cmap=plt.cm.seismic, center = 1, cbar = True, cbar_kws={'label': r'$n_{A}/n_{U}$'}, linewidths=.5)
+		sns.heatmap(avg_t_aposteriori, vmin = 0, vmax=np.max(avg_t_aposteriori), ax = ax3, cmap=plt.cm.twilight, center = 0, cbar = True, cbar_kws={'label': r'$T_k$'}, linewidths=.5)
+		sns.heatmap(avg_cs_aposteriori/n50, vmin = np.min((np.max(avg_cs_aposteriori/n50)**(-1), np.min(avg_cs_aposteriori/n50))), vmax=np.max((np.max(avg_cs_aposteriori/n50), np.min(avg_cs_aposteriori/n50)**(-1))), ax = ax4, cmap=plt.cm.seismic, center = 1, cbar = True, cbar_kws={'label': r'$n_k/n^*$'}, linewidths=.5)
+		sns.heatmap(avg_t_aposteriori/avg_t_uniform, vmin = vmin_t_0, vmax= vmax_t_0, ax = ax5, cmap=plt.cm.seismic, center = 1, cbar = True, cbar_kws={'label': r'$T_k/T_{U}$'}, linewidths=.5)
+		sns.heatmap(avg_cs_aposteriori/avg_cs_uniform, vmin = vmin_cs_0, vmax= vmax_cs_0, ax = ax6, cmap=plt.cm.seismic, center = 1, cbar = True, cbar_kws={'label': r'$n_k/n_{U}$'}, linewidths=.5)
 
 
-		my_plot_layout(ax=ax, xlabel=r'Sample size (%)', ylabel=r'$R_0$', xscale='linear', x_fontsize = 34, y_fontsize = 34)
+		my_plot_layout(ax=ax, xlabel=r'Sample size (%)', ylabel=r'$\hat{R}_0$', xscale='linear', x_fontsize = 34, y_fontsize = 34)
 		ax.set_xticks([.5, 1.5, 2.])
 		ax.set_xticklabels(FormatStrFormatter('%.1f').format_ticks(sample_sizes/N*100))
 		ax.set_yticks(np.array([g + 0.5 for g in np.arange(len(betas))]))
@@ -142,7 +147,7 @@ for s, sigma in enumerate(sigmas):
 
 		plt.close(fig)
 
-		my_plot_layout(ax=ax2, xlabel=r'Sample size (%)', ylabel=r'$R_0$', xscale='linear', x_fontsize = 34, y_fontsize = 34)
+		my_plot_layout(ax=ax2, xlabel=r'Sample size (%)', ylabel=r'$\hat{R}_0$', xscale='linear', x_fontsize = 34, y_fontsize = 34)
 		ax2.set_xticks([.5, 1.5, 2.5])
 		ax2.set_xticklabels(FormatStrFormatter('%.1f').format_ticks(sample_sizes/N*100))
 		ax2.set_yticks(np.array([g + 0.5 for g in np.arange(len(betas))]))
@@ -153,7 +158,7 @@ for s, sigma in enumerate(sigmas):
 		fig2.savefig('../Figures/Sampling/Networks/barabasi-albert/prueba/avg_cs_uniform_'+model+'_p%.1f_L.pdf'%(p))
 		plt.close(fig2)
 
-		my_plot_layout(ax=ax3, xlabel=r'Sample size (%)', ylabel=r'$R_0$', yscale='linear', x_fontsize = 34, y_fontsize = 34)
+		my_plot_layout(ax=ax3, xlabel=r'Sample size (%)', ylabel=r'$\hat{R}_0$', yscale='linear', x_fontsize = 34, y_fontsize = 34)
 		ax3.set_xticks([.5, 1.5, 2.5])
 		ax3.set_xticklabels(FormatStrFormatter('%.1f').format_ticks(sample_sizes/N*100))
 		ax3.set_yticks(np.array([g + 0.5 for g in np.arange(len(betas))]))
@@ -164,7 +169,7 @@ for s, sigma in enumerate(sigmas):
 		fig3.savefig('../Figures/Sampling/Networks/barabasi-albert/prueba/avg_t_aposteriori_'+model+'_p%.1f_L.pdf'%(p))
 		plt.close(fig3)
 
-		my_plot_layout(ax=ax4, xlabel=r'Sample size (%)', ylabel=r'$R_0$', yscale='linear', x_fontsize = 34, y_fontsize = 34)
+		my_plot_layout(ax=ax4, xlabel=r'Sample size (%)', ylabel=r'$\hat{R}_0$', yscale='linear', x_fontsize = 34, y_fontsize = 34)
 		ax4.set_xticks([.5, 1.5, 2.5])
 		ax4.set_xticklabels(FormatStrFormatter('%.1f').format_ticks(sample_sizes/N*100))
 		ax4.set_yticks(np.array([g + 0.5 for g in np.arange(len(betas))]))
@@ -175,7 +180,7 @@ for s, sigma in enumerate(sigmas):
 		fig4.savefig('../Figures/Sampling/Networks/barabasi-albert/prueba/avg_cs_aposteriori_'+model+'_p%.1f_L.pdf'%(p))
 		plt.close(fig4)
 
-		my_plot_layout(ax=ax5, xlabel=r'Sample size (%)', ylabel=r'$R_0$', yscale='linear', x_fontsize = 34, y_fontsize = 34)
+		my_plot_layout(ax=ax5, xlabel=r'Sample size (%)', ylabel=r'$\hat{R}_0$', yscale='linear', x_fontsize = 34, y_fontsize = 34)
 		ax5.set_xticks([.5, 1.5, 2.5])
 		ax5.set_xticklabels(FormatStrFormatter('%.1f').format_ticks(sample_sizes/N*100))
 		ax5.set_yticks(np.array([g + 0.5 for g in np.arange(len(betas))]))
@@ -186,7 +191,7 @@ for s, sigma in enumerate(sigmas):
 		fig5.savefig('../Figures/Sampling/Networks/barabasi-albert/prueba/figure_times_'+model+'_p%.1f_L.pdf'%(p))
 		plt.close(fig5)
 
-		my_plot_layout(ax=ax6, xlabel=r'Sample size (%)', ylabel=r'$R_0$', yscale='linear', x_fontsize = 34, y_fontsize = 34)
+		my_plot_layout(ax=ax6, xlabel=r'Sample size (%)', ylabel=r'$\hat{R}_0$', yscale='linear', x_fontsize = 34, y_fontsize = 34)
 		ax6.set_xticks([.5, 1.5, 2.5])
 		ax6.set_xticklabels(FormatStrFormatter('%.1f').format_ticks(sample_sizes/N*100))
 		ax6.set_yticks(np.array([g + 0.5 for g in np.arange(len(betas))]))

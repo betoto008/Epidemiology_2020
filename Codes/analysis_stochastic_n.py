@@ -18,7 +18,7 @@ colors_R = plt.cm.Paired(range(7))
 models = ['SEIR', 'SIR']
 gamma = 1/6
 ps=[0.0, 1.0]
-sigmas=[1/4]
+sigmas=[1/4, 1000]
 u = np.linspace(0.00005,0.9,100000)
 tau_SIR = 1/gamma
 tau_SEIR = 2*(1/4+gamma)**(-1)
@@ -142,7 +142,7 @@ for q, p in enumerate(ps):
                 fig.savefig('../Figures/Stochastic/Networks/barabasi-albert/pdfs/Epi_prob_n_'+model+'_p%.1f.pdf'%(p))
 
                 # Plot 2
-                my_plot_layout(ax=ax2, xlabel=r'$R_0^N$', ylabel=r'$n$', yscale='log', x_fontsize = 34, y_fontsize = 34)
+                my_plot_layout(ax=ax2, xlabel=r'$\hat{R}_0$', ylabel=r'$n$', yscale='log', x_fontsize = 34, y_fontsize = 34)
                 if(p==1.0):
                         ax2.set_xlim(1.02, 2.3)
                 if(p==0.0):

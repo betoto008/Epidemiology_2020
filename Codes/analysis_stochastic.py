@@ -123,6 +123,8 @@ for l, sigma in enumerate(sigmas):
                 ax0.plot(R0_N_array2, S_SEIR ,linestyle = 'dashed', linewidth = 3, color = color_p, label = r'Network')
         
     ax.hlines(1,0.5,6.5, linestyle = 'dashed', color = 'silver', alpha = .4, linewidth = 1)
+    ax.spines['right'].set_visible(False)
+    ax.spines['top'].set_visible(False)
     #ax.vlines(1,0,1, linestyle = 'dashed', color = 'silver', alpha = .4, linewidth = 1)
     my_plot_layout(ax=ax, xlabel = r'Reproductive number', ylabel=r'Probability of epidemic', x_fontsize = 34, y_fontsize = 34)
     if(sigma==1000):
@@ -135,8 +137,10 @@ for l, sigma in enumerate(sigmas):
     fig.savefig('../Figures/Stochastic/Networks/barabasi-albert/Prob_epi_'+labels_model[l]+'.png')
     fig.savefig('../Figures/Stochastic/Networks/barabasi-albert/pdfs/Prob_epi_'+labels_model[l]+'.pdf')
 
+ax0.spines['right'].set_visible(False)
+ax0.spines['top'].set_visible(False)
 ax0.hlines(1,0.5,6.5, linestyle = 'dashed', color = 'silver', alpha = .4, linewidth = 1)
-ax0.vlines(1,0,1, linestyle = 'dashed', color = 'silver', alpha = .4, linewidth = 1)
+#ax0.vlines(1,0,1, linestyle = 'dashed', color = 'silver', alpha = .4, linewidth = 1)
 ax0.set_xlim(0.8,5.1)
 my_plot_layout(ax=ax0, xlabel = r'Reproductive number', ylabel=r'Probability of epidemic')
 ax0.legend(fontsize = 20, loc = 4, framealpha=.95)

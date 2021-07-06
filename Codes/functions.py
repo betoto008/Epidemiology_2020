@@ -95,6 +95,32 @@ def sort_nodes(p, beta, sigma, gamma, data_I, data_E, data_nodes, upper_limit):
 
 	return nodes_ext, nodes_succ, I_ext, I_succ, max_values, data_ext
 
+def regularize_time_series(T_total, intervals, t, E_t, I_t):
+
+	#### Fill equally-spaced time array with samples than made it through.
+	T_avg = np.linspace(0, T_total, intervals)
+	E_avg_temp = np.zeros(shape = (intervals))
+	I_avg_temp = np.zeros(shape = (intervals))
+
+	if(t[-1]>=(T_total)):
+		j = 0
+		for k in np.arange(intervals):
+			while(t[j]<T_avg[k]):
+				j = j+1
+			E_avg_temp[k] += E_t[j]
+			I_avg_temp[k] += I_t[j]
+	else:
+		j=0
+		k=0
+		while(T_avg[k]<t[-1]):
+			while(t[j]<=T_avg[k]):
+				j = j+1
+			E_avg_temp[k] += E_t[j]
+			I_avg_temp[k] += I_t[j]
+			k = k+1
+
+	return E_avg_temp, I_avg_temp
+
 
 #----------------- Plots -----------------
 
@@ -397,9 +423,8 @@ def run_deterministic(N, beta, sigma, gamma, p, T_total, folder):
 
 	return lambda1, lambda2, time, E_solution, I_solution, sol_total_approx, I_max_2
 
-def run_network_trajectory(N, G, beta, sigma, gamma, T_total, intervals, p, initE, initI, est, folder):
+def run_network_trajectory(N, G, beta, sigma, gamma, T_total, p, initE, initI, folder = '', save = False):
 
-	R0 = beta/gamma
 	## Exting (0) or succesful (1) 
 	status = 0
 	model = SEIRSNetworkModel(G       =G, 
@@ -414,23 +439,19 @@ def run_network_trajectory(N, G, beta, sigma, gamma, T_total, intervals, p, init
 	model.run(T=T_total*1.1, print_interval = False)
 	Eseries = model.numE
 	Iseries = model.numI
-	I_max_1 = max(np.concatenate((model.numE,model.numI)))
 
 	#### Get degree of initial infected node
 	init_node = np.where(model.Xseries[0,:]==3)[0][0]
 	init_degree = G.degree(init_node)
 
 	## Change status
-	if(model.numI[-1]>0):
+	if(model.numI[-1]>0 and np.max(model.numI)>10):
 	    status = 1
 
+	if (save):
+		np.savetxt(folder+'/Xseries_R0%.1f_sigma%.2f_N%d_p%.1f.txt'%(beta/gamma, sigma, N, p), (model.Xseries), fmt = '%d')
 
-	#### Fill array with analytical solution
-	lambda1, lambda2, time, E_solution, I_solution, sol_total_approx, I_max_2 = run_deterministic(N, beta, sigma, gamma, p, T_total, '../../../../Dropbox/Research/Epidemiology_2020/Text_files/Deterministic/Single_trajectory/')
-
-	np.savetxt(folder+'/Xseries_R0%.1f_sigma%.2f_N%d_p%.1f.txt'%(beta/gamma, sigma, N, p), (model.Xseries), fmt = '%d')
-
-	return model.tseries, model.numE, model.numI, I_max_1, I_max_2, time, E_solution, I_solution, sol_total_approx, status
+	return model.tseries, model.numE, model.numI, status
 
 def run_network_ensemble(N, G, G_name, beta, sigma, gamma, T_total, intervals, n_ensemble, p, initE, initI, folder, stochastic, sampling, sample_sizes, aposteriori = False, slope = None):
 
