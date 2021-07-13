@@ -127,7 +127,7 @@ for q, p in enumerate(ps):
 			
 			#ax.plot(k, (slope*meanDegree)*np.log10(k)-(slope*meanDegree)*np.log10(3), color = colors_R[b], linestyle = '--', linewidth = 2)
 		ax.hlines(0, 0, 80, linestyle = '--', color = 'silver')
-		my_plot_layout(ax = ax, yscale='linear', xscale='log', ylabel=r'$\log{\left(\frac{p(k|\mathrm{epi})}{p(k)}\right)}$', xlabel=r'$k_0/\left\langle k \right\rangle$', x_fontsize = 34, y_fontsize = 34)
+		my_plot_layout(ax = ax, yscale='linear', xscale='log', ylabel=r'$\log{\left(\frac{P(k|\mathrm{epi})}{P(k)}\right)}$', xlabel=r'$k_0/\left\langle k \right\rangle$', x_fontsize = 34, y_fontsize = 34)
 		my_plot_layout(ax = ax2, yscale='linear', xscale='log', xlabel=r'$k_0/\left\langle k \right\rangle$', x_fontsize = 34, y_fontsize = 34)
 
 		ax.legend(fontsize = 22, title = r'$\hat{R}_0$', title_fontsize = 24)
