@@ -13,7 +13,7 @@ from Epi_models import *
 
 print('Hola mundo \n')
 
-numNodes = 20
+numNodes = 50
 baseGraph    = networkx.barabasi_albert_graph(n=numNodes, m=9)
 G_normal     = custom_exponential_graph(baseGraph, scale=100)
 # Social distancing interactions:
@@ -22,7 +22,7 @@ G_distancing = custom_exponential_graph(baseGraph, scale=10)
 G_quarantine = custom_exponential_graph(baseGraph, scale=5)
 
 model = ExtSEIRSNetworkModel(G=G_normal, beta=0.4, sigma=10000, lamda = 1/4, gamma = 1/6, gamma_asym=1/6, a = 1,  p=1,
-                          G_Q=G_normal, initI_asym=1, isolation_time = 0, sigma_Q = 1000, lamda_Q = 1/4, gamma_Q_asym = 1/6,
+                          G_Q=G_normal, initI_asym=1, isolation_time = 10, sigma_Q = 1000, lamda_Q = 1/4, gamma_Q_asym = 1/6,
                           transition_mode = 'time_in_state', prevalence_ext = 1e-2, eta = 1, mu_H = 1, xi = 1e-10, nu = 1e-10)
 
 checkpoints = {'t': [20, 100], 'G': [G_distancing, G_normal], 'p': [0.1, 0.5], 'theta_E': [0.02, 0.02], 'theta_I': [0.02, 0.02], 'phi_E':   [0.2, 0.2], 'phi_I':   [0.2, 0.2]}

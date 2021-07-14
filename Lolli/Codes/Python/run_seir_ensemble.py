@@ -24,11 +24,14 @@ G_normal     = custom_exponential_graph(baseGraph, scale=100)
 # Quarantine interactions:
 #G_quarantine = custom_exponential_graph(baseGraph, scale=5)
 
-fig, ax = plt.subplots(figsize = (10,8))
+fig1, ax1 = plt.subplots(figsize = (10,8))
+fig2, ax2 = plt.subplots(figsize = (10,8))
 
-Q_days = np.array([0, 2, 5, 14])
+Q_days = np.array([0, 2, 4, 6, 8, 10, 12, 14, 20])
 
 colors_d = plt.cm.Blues(np.linspace(0,1,len(Q_days)+1))
+
+I_avg_d = np.array([])
 
 for i, d in enumerate(Q_days):
 	I_cum = np.array([])
@@ -44,12 +47,20 @@ for i, d in enumerate(Q_days):
 
 		I_cum = np.append(I_cum, (model.numR[-1] + model.numQ_R[-1]))
 
-	ax.hist(I_cum, bins = np.arange(21), density = True, color = colors_d[i+1], label = '%d'%(d))
-	ax.vlines(np.mean(I_cum), 0, ax.get_ylim()[1], color = colors_d[i+1])
+	ax1.hist(I_cum, bins = np.arange(21), density = True, color = colors_d[i+1], label = '%d'%(d))
+	I_avg = np.mean(I_cum)
+	ax1.vlines(I_avg, 0, ax1.get_ylim()[1], color = colors_d[i+1])
+	I_avg_d = np.append(I_avg_d, I_avg)
 
-ax.legend(title = 'Isolations days')
 
-fig.savefig('../../../Figures/Lolli/1_Extended_Model/histograms.pdf')
+
+ax1.legend(title = 'Isolations days')
+my_plot_layout(ax=ax1)
+fig1.savefig('../../Figures/1_Extended_Model/histograms.pdf')
+
+ax2.plot(Q_days, I_avg_d)
+my_plot_layout(ax=ax2)
+fig2.savefig('../../Figures/1_Extended_Model/I_avg.pdf')
 
 
 
